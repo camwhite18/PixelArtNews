@@ -6,6 +6,8 @@ import {
 
 interface Props {
   scene: string | null;
+  /** The show the set is dressed for (a shift id, e.g. "breakfast"). */
+  show?: string | null;
   /** The presenters on set, in seat order. */
   team: Look[];
   /** Seat of the presenter speaking, from the live line; undefined = idle animation. */
@@ -19,16 +21,16 @@ interface Props {
 
 /** A channel's pixel studio, drawn at 320x180 and scaled up with crisp pixels. */
 export function Studio({
-  scene, team, talking, level, staticUntil = 0, label,
+  scene, show, team, talking, level, staticUntil = 0, label,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const propsRef = useRef({
-    scene, team, talking, level, staticUntil,
+    scene, show, team, talking, level, staticUntil,
   });
   // The animation loop reads the latest props without restarting.
   useEffect(() => {
     propsRef.current = {
-      scene, team, talking, level, staticUntil,
+      scene, show, team, talking, level, staticUntil,
     };
   });
 
@@ -49,7 +51,7 @@ export function Studio({
         }
         state = { talking: p.talking, mouthOpen: p.talking !== null && mouthOpen };
       }
-      drawFrame(ctx, p.scene, p.team, { time, ...state, static: time < p.staticUntil });
+      drawFrame(ctx, p.scene, p.team, { time, ...state, static: time < p.staticUntil }, p.show);
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);

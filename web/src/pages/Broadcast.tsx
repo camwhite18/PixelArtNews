@@ -2,8 +2,11 @@ import {
   useEffect, useMemo, useRef, useState,
 } from 'preact/hooks';
 import { type Channel, serverNow } from '../api';
+import { PixelIcon } from '../components/PixelIcon';
 import { Studio } from '../components/Studio';
-import { looksOf, namesOf, teamOnSet } from '../team';
+import {
+  looksOf, namesOf, showOf, teamOnSet,
+} from '../team';
 import { type NowPlaying, Player } from '../player';
 import { href, navigate } from '../router';
 import {
@@ -102,6 +105,7 @@ export function Broadcast({
       <div className="stage">
         <Studio
           scene={seg ? channel.scene : null}
+          show={showOf(seg, now)}
           team={looksOf(team)}
           talking={talking === null || talking < 0 ? null : talking}
           level={() => player.level()}
@@ -160,13 +164,16 @@ export function Broadcast({
               navigate('/');
             }}
           >
-            ◂ GUIDE
+            <PixelIcon name="left" />
+            GUIDE
           </a>
           <button type="button" className="ctl" aria-label="Channel up" onClick={() => zap(-1)}>
-            CH ▲
+            CH
+            <PixelIcon name="up" />
           </button>
           <button type="button" className="ctl" aria-label="Channel down" onClick={() => zap(1)}>
-            CH ▼
+            CH
+            <PixelIcon name="down" />
           </button>
           {seg && seg.sources.length > 0 && (
             <button
@@ -188,13 +195,15 @@ export function Broadcast({
                   <a href={s.url} target="_blank" rel="noopener noreferrer">
                     {s.outlet}
                     {' '}
-                    ↗
+                    <PixelIcon name="out" />
                   </a>
                 </li>
               ))}
             </ul>
           </div>
         )}
+
+        <div className="scanlines" aria-hidden="true" />
 
         <div className="ticker">
           <span className="ticker-ch">{channel.name}</span>
@@ -215,7 +224,8 @@ export function Broadcast({
               player.unlock();
             }}
           >
-            ▶ SWITCH ON
+            <PixelIcon name="play" />
+            SWITCH ON
           </button>
         )}
       </div>

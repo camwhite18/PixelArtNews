@@ -14,6 +14,8 @@
     "build:demo": "VITE_DEMO=1 vite build --base ./ --outDir dist-demo"
   },
   "dependencies": {
+    "@fontsource/press-start-2p": "^5.3.0",
+    "@fontsource/tiny5": "^5.3.0",
     "preact": "^11.2.0"
   },
   "devDependencies": {

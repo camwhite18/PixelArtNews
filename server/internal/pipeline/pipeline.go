@@ -161,7 +161,7 @@ func (p *Pipeline) produce(ctx context.Context, ch store.Channel, slot shifts.Sl
 
 	var segs []rundown.Segment
 	for _, s := range script {
-		seg, err := p.voice(ctx, ch.ID, s, sources, team)
+		seg, err := p.voice(ctx, ch.ID, slot.ID, s, sources, team)
 		if err != nil {
 			return nil, err
 		}
@@ -170,7 +170,7 @@ func (p *Pipeline) produce(ctx context.Context, ch store.Channel, slot shifts.Sl
 	return segs, nil
 }
 
-func (p *Pipeline) voice(ctx context.Context, channelID string, s ScriptSegment, sources []rundown.Source, team []store.Presenter) (rundown.Segment, error) {
+func (p *Pipeline) voice(ctx context.Context, channelID, show string, s ScriptSegment, sources []rundown.Source, team []store.Presenter) (rundown.Segment, error) {
 	byID := map[string]store.Presenter{}
 	var onSet []string
 	for _, pr := range team {
@@ -210,6 +210,7 @@ func (p *Pipeline) voice(ctx context.Context, channelID string, s ScriptSegment,
 		Headline:   s.Headline,
 		Ticker:     s.Ticker,
 		Presenters: onSet,
+		Show:       show,
 		Lines:      s.Lines,
 		Sources:    SourcesFor(s, sources),
 	}, nil

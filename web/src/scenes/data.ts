@@ -1,17 +1,23 @@
-// Studio backdrops, from the approved design mockup. Each studio is drawn on
-// a 320x180 canvas in three layers: `back` (the set), then the presenters on
+// Studio sets, from the approved design mockup. Each studio is drawn on a
+// 320x180 canvas in three layers: `back` (the set), then the presenters on
 // shift (drawn from their looks, see presenters.ts), then `front` (the desk
-// and props in front of them).
+// and props in front of them). What changes from show to show (the sky, the
+// big screen, the lighting) lives in shows.ts.
 //
-// Rect: [x, y, w, h, colour, anim?, alpha?]
-//   anim: "blink" | "blink2" (time-based flashing)
-// Text: [x, y, size, colour, text, anchor?]
+// Rect: [x, y, w, h, colour, fx?, alpha?]
+//   fx: "blink" | "blink2" (time-based flashing; also marks a light, which
+//       keeps glowing when a show dims the set) | "dither" (a checkerboard
+//       of the colour, for pixel-art shading)
+// Text: [x, y, size, colour, text, anchor?, font?], drawn as crisp bitmap
+//   text. `size` is 8 or 16; font "label" (Tiny5, the default) or "display"
+//   (Press Start 2P).
 // Seats: where presenters sit: the head's left edge for a solo host (`one`)
 // and for a pair (`two`), in seat order.
 
-export type Anim = 'blink' | 'blink2';
-export type Rect = [number, number, number, number, string, Anim?, number?];
-export type Text = [number, number, number, string, string, 'middle'?];
+export type Fx = 'blink' | 'blink2' | 'dither';
+export type Rect = [number, number, number, number, string, Fx?, number?];
+export type Font = 'label' | 'display';
+export type Text = [number, number, number, string, string, ('middle' | 'left')?, Font?];
 export interface Seats { one: number; two: [number, number] }
 export interface SceneData {
   bg: string;
@@ -26,6 +32,7 @@ const world: SceneData = {
   back: [
     [0,0,320,180,"#0d1f3c"],
     [0,100,320,18,"#0a1830"],
+    [0,98,320,2,"#0a1830","dither"],
     [16,8,220,92,"#4aa3ff"],
     [18,10,216,88,"#0a1830"],
     [18,32,216,1,"#12305a"],
@@ -66,6 +73,7 @@ const world: SceneData = {
   ],
   front: [
     [40,118,240,62,"#1a1828"],
+    [40,154,240,26,"#0b0b14","dither"],
     [40,118,240,4,"#3a3756"],
     [40,150,240,2,"#12111c"],
     [130,132,60,10,"#4aa3ff"],
@@ -73,9 +81,9 @@ const world: SceneData = {
     [144,114,10,1,"#a9a6b8"],
   ],
   texts: [
-    [272,49,6,"#4aa3ff","LDN"],
-    [272,73,6,"#4aa3ff","NYC"],
-    [272,97,6,"#4aa3ff","TYO"],
+    [271,49,8,"#4aa3ff","LDN"],
+    [271,73,8,"#4aa3ff","NYC"],
+    [271,97,8,"#4aa3ff","TYO"],
   ],
   seats: { one: 136, two: [88, 184] },
 };
@@ -85,6 +93,7 @@ const tech: SceneData = {
   back: [
     [0,0,320,180,"#0c2a2a"],
     [0,104,320,14,"#0a2222"],
+    [0,102,320,2,"#0a2222","dither"],
     [64,10,1,40,"#146b5a"],
     [64,50,40,1,"#146b5a"],
     [104,50,1,8,"#146b5a"],
@@ -180,6 +189,7 @@ const tech: SceneData = {
   ],
   front: [
     [50,118,210,62,"#141a1f"],
+    [50,154,210,26,"#060a0c","dither"],
     [50,118,210,3,"#3fe0b0"],
     [50,150,210,2,"#146b5a"],
     [152,104,24,14,"#a9a6b8"],
@@ -196,6 +206,7 @@ const science: SceneData = {
   back: [
     [0,0,320,180,"#1e1640"],
     [0,104,320,14,"#170f33"],
+    [0,102,320,2,"#170f33","dither"],
     [176,10,104,92,"#b48cff"],
     [180,14,96,84,"#070516"],
     [188,22,1,1,"#f4f1e6"],
@@ -253,6 +264,7 @@ const science: SceneData = {
   ],
   front: [
     [60,118,200,62,"#2a2440"],
+    [60,154,200,26,"#120c2a","dither"],
     [60,118,200,4,"#e9e6dc"],
     [60,150,200,2,"#1e1640"],
     [196,112,16,6,"#a9a6b8"],
@@ -269,11 +281,8 @@ const science: SceneData = {
 
 const sport: SceneData = {
   bg: '#2a1a4a',
+  // The sky comes from the show (shows.ts), so this starts at the stands.
   back: [
-    [0,0,320,20,"#2a1a4a"],
-    [0,20,320,14,"#5a2a5a"],
-    [0,34,320,12,"#c2502a"],
-    [0,46,320,8,"#ffb03b"],
     [0,54,320,26,"#2a2a2a"],
     [6,58,3,3,"#ff4d5e"],
     [26,58,3,3,"#f4f1e6"],
@@ -337,6 +346,7 @@ const sport: SceneData = {
   ],
   front: [
     [44,118,232,62,"#1a1828"],
+    [44,154,232,26,"#0b0b14","dither"],
     [44,118,232,4,"#ffb03b"],
     [44,150,232,2,"#12111c"],
     [150,110,8,8,"#f4f1e6"],
@@ -349,9 +359,9 @@ const sport: SceneData = {
     [226,116,10,2,"#d9a32b"],
   ],
   texts: [
-    [128,14,4,"#a9a6b8","HOME"],
-    [176,14,4,"#a9a6b8","AWAY"],
-    [160,25,9,"#ffb03b","2-1","middle"],
+    [127,13,8,"#a9a6b8","HOME"],
+    [175,13,8,"#a9a6b8","AWAY"],
+    [160,26,8,"#ffb03b","2-1","middle","display"],
   ],
   seats: { one: 137, two: [88, 186] },
 };
@@ -361,6 +371,7 @@ const weird: SceneData = {
   back: [
     [0,0,320,180,"#2a0c26"],
     [0,102,320,16,"#1e081b"],
+    [0,100,320,2,"#1e081b","dither"],
     [168,8,136,94,"#ff6fcf"],
     [171,11,130,88,"#0a0618"],
     [180,20,1,1,"#f4f1e6"],
@@ -414,6 +425,7 @@ const weird: SceneData = {
   ],
   front: [
     [56,118,210,62,"#1a1828"],
+    [56,154,210,26,"#0b0b14","dither"],
     [56,118,210,4,"#ff6fcf"],
     [56,150,210,2,"#12111c"],
     [136,132,50,10,"#ff6fcf"],
@@ -421,7 +433,7 @@ const weird: SceneData = {
     [157,112,6,6,"#3fe0b0"],
   ],
   texts: [
-    [64,44,10,"#ff6fcf","?!"],
+    [58,46,16,"#ff6fcf","?!","left","display"],
   ],
   seats: { one: 145, two: [100, 190] },
 };

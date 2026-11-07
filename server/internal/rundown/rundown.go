@@ -22,8 +22,10 @@ type Segment struct {
 	Ticker    string    `json:"ticker,omitempty"`
 	// Presenters on set for this segment (the shift's team), in seat order.
 	Presenters []string `json:"presenters,omitempty"`
-	Lines      []Line   `json:"lines"`
-	Sources    []Source `json:"sources"`
+	// Show is the shift this segment was made for; studios dress their set for it.
+	Show    string   `json:"show,omitempty"`
+	Lines   []Line   `json:"lines"`
+	Sources []Source `json:"sources"`
 }
 
 // End is when the segment stops airing.

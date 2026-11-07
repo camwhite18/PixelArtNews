@@ -286,6 +286,7 @@ export function demoRundown(channelId: string, now: number): Rundown | null {
       headline: s.headline,
       ticker: s.ticker,
       presenters: s.presenters,
+      show: s.id.slice(channel.id.length + 1),
       durationS: t.durationS,
       audio: audio[`../demo/out/audio/${s.id}.mp3`],
       lines: s.lines.map(([speaker, text], i) => ({

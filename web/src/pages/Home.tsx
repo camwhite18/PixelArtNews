@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'preact/hooks';
 import { type Channel, serverNow } from '../api';
 import { Studio } from '../components/Studio';
-import { looksOf, namesOf, teamOnSet } from '../team';
+import {
+  looksOf, namesOf, showOf, teamOnSet,
+} from '../team';
 import { href, navigate } from '../router';
 import {
   clockTime, onAir, segmentLabel, startMs, upNext,
@@ -45,6 +47,7 @@ function ChannelCard({ channel, index, now }: { channel: Channel; index: number;
       <div className="card-frame">
         <Studio
           scene={channel.scene}
+          show={showOf(air?.segment, now)}
           team={looksOf(team)}
           label={`${channel.name} studio`}
         />

@@ -24,6 +24,7 @@ func sample(now time.Time) Rundown {
 			Headline:   "Example headline",
 			Ticker:     "Example ticker",
 			Presenters: []string{"margot", "kofi"},
+			Show:       "evening",
 			Lines: []Line{
 				{Speaker: "margot", Text: "Good afternoon.", SourceIDs: []string{"s1"}},
 				{Speaker: "kofi", Text: "And here's why it matters.", StartS: 3.2, SourceIDs: []string{"s1"}},

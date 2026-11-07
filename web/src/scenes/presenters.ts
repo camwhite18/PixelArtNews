@@ -107,6 +107,16 @@ function neckwear(x: number, l: Look): Rect[] {
   }
 }
 
+/** A jacket 50px wide with dithered shading down its sides. */
+function torso(left: number, colour: string): Rect[] {
+  return [
+    [left, 92, 50, 30, colour],
+    [left, 94, 4, 28, INK, 'dither', 0.55],
+    [left + 46, 94, 4, 28, INK, 'dither', 0.55],
+    [left + 4, 112, 42, 6, INK, 'dither', 0.3],
+  ];
+}
+
 function alien(x: number, l: Look, facing: Facing, mouthOpen: boolean): Rect[] {
   const shine = facing < 0 ? 1 : 3;
   const tip = l.neckColour ?? '#ff6fcf';
@@ -119,7 +129,7 @@ function alien(x: number, l: Look, facing: Facing, mouthOpen: boolean): Rect[] {
     [x + 15 + shine, 71, 2, 2, '#f4f1e6'],
     mouthOpen ? [x + 9, 81, 8, 4, INK] : [x + 9, 82, 8, 2, '#1e5a12'],
     [x + 9, 88, 8, 4, l.skin],
-    [x - 12, 92, 50, 30, l.outfit],
+    ...torso(x - 12, l.outfit),
     [x, 92, 26, 3, INK, undefined, 0.3],
     ...neckwear(x, l),
   ];
@@ -131,6 +141,7 @@ export function presenterRects(x: number, l: Look, facing: Facing, mouthOpen: bo
   const rects: Rect[] = [
     ...hairBehind(x, l),
     [x, HEAD_Y, 22, 22, l.skin],
+    [x + 20, HEAD_Y + 4, 2, 18, INK, 'dither', 0.18], // cheek shade
     ...hairOnTop(x, l),
     ...eyes(x, l, facing),
   ];
@@ -140,7 +151,8 @@ export function presenterRects(x: number, l: Look, facing: Facing, mouthOpen: bo
   if (l.headset) {
     rects.push([x - 4, 70, 4, 10, INK], [x, 80, 7, 1, INK], [x + 6, 80, 2, 2, '#3fe0b0']);
   }
-  rects.push([x + 7, 88, 8, 4, l.skin], [x - 14, 92, 50, 30, l.outfit]);
+  rects.push([x + 7, 88, 8, 4, l.skin], [x + 7, 88, 8, 1, INK, undefined, 0.25]);
+  rects.push(...torso(x - 14, l.outfit));
   if (l.shirt) rects.push([x + 6, 92, 10, 9, l.shirt]);
   rects.push(...neckwear(x, l));
   return rects;
