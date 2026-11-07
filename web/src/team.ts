@@ -17,6 +17,11 @@ export function shiftAt(now: number): string {
   return TIMETABLE.reduce((cur, [id, start]) => (hour >= start ? id : cur), 'overnight');
 }
 
+/** The show on set: the one a segment was made for, or else the shift on air now. */
+export const showOf = (segment: Segment | null | undefined, now: number): string => (
+  segment?.show || shiftAt(now)
+);
+
 export function teamOnSet(
   channel: Channel,
   segment: Segment | null | undefined,
