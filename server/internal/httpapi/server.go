@@ -11,7 +11,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"path/filepath"
+	"path"
 	"strings"
 	"sync"
 	"time"
@@ -29,7 +29,22 @@ type Server struct {
 	subs map[chan string]struct{}
 }
 
-func (s *Server) Handler() http.Handler {
+// Handler builds the routes. Static files are served through os.Root, so a
+// request path can never reach outside WEB_DIR or MEDIA_DIR (including via
+// symlinks).
+func (s *Server) Handler() (http.Handler, error) {
+	if err := os.MkdirAll(s.MediaDir, 0o750); err != nil {
+		return nil, err
+	}
+	media, err := os.OpenRoot(s.MediaDir)
+	if err != nil {
+		return nil, fmt.Errorf("media dir: %w", err)
+	}
+	web, err := os.OpenRoot(s.WebDir)
+	if err != nil {
+		return nil, fmt.Errorf("web dir: %w", err)
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("ok"))
@@ -37,9 +52,9 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /api/time", s.handleTime)
 	mux.HandleFunc("GET /api/channels", s.handleChannels)
 	mux.HandleFunc("GET /api/events", s.handleEvents)
-	mux.Handle("GET /media/", http.StripPrefix("/media/", mediaCache(s.MediaDir, http.FileServer(http.Dir(s.MediaDir)))))
-	mux.Handle("GET /", spa(s.WebDir))
-	return mux
+	mux.Handle("GET /media/", http.StripPrefix("/media/", mediaCache(media.FS())))
+	mux.Handle("GET /", spa(web.FS()))
+	return mux, nil
 }
 
 // handleTime lets clients correct their clock; the Date header is too coarse
@@ -69,32 +84,41 @@ func writeJSON(w http.ResponseWriter, v any) {
 // change, so the Cloudflare edge can keep them; latest.json must stay fresh.
 // Missing files are never marked immutable, so a 404 (say, for a channel that
 // has not published yet) is not pinned at the edge.
-func mediaCache(dir string, next http.Handler) http.Handler {
+func mediaCache(fsys fs.FS) http.Handler {
+	files := http.FileServerFS(fsys)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case strings.HasSuffix(r.URL.Path, "latest.json"):
 			w.Header().Set("Cache-Control", "no-cache")
-		case fileExists(filepath.Join(dir, filepath.Clean("/"+r.URL.Path))):
+		case isFile(fsys, r.URL.Path):
 			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 		default:
 			w.Header().Set("Cache-Control", "no-store")
 		}
-		next.ServeHTTP(w, r)
+		files.ServeHTTP(w, r)
 	})
 }
 
-func fileExists(p string) bool {
-	fi, err := os.Stat(p)
+// fsName turns a URL path into an fs.FS name ("/a/../b" -> "b", "/" -> ".").
+func fsName(urlPath string) string {
+	name := strings.TrimPrefix(path.Clean("/"+urlPath), "/")
+	if name == "" {
+		return "."
+	}
+	return name
+}
+
+func isFile(fsys fs.FS, urlPath string) bool {
+	fi, err := fs.Stat(fsys, fsName(urlPath))
 	return err == nil && !fi.IsDir()
 }
 
 // spa serves the built front end, falling back to index.html for app routes.
-func spa(dir string) http.Handler {
-	files := http.FileServer(http.Dir(dir))
+func spa(fsys fs.FS) http.Handler {
+	files := http.FileServerFS(fsys)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		p := filepath.Join(dir, filepath.Clean("/"+r.URL.Path))
-		if _, err := os.Stat(p); errors.Is(err, fs.ErrNotExist) {
-			http.ServeFile(w, r, filepath.Join(dir, "index.html"))
+		if _, err := fs.Stat(fsys, fsName(r.URL.Path)); errors.Is(err, fs.ErrNotExist) {
+			http.ServeFileFS(w, r, fsys, "index.html")
 			return
 		}
 		if strings.HasPrefix(r.URL.Path, "/assets/") {

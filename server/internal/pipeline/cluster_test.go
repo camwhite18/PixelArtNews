@@ -32,8 +32,9 @@ func TestTopHashChangesWithStories(t *testing.T) {
 	if TopHash(a, 5) == TopHash(b, 5) {
 		t.Fatal("different top stories should hash differently")
 	}
-	if TopHash(a, 5) != TopHash(a, 5) {
-		t.Fatal("hash should be stable")
+	again := ClusterArticles([]store.Article{art("bbc", "Story one about rockets", 1)}, 0.3)
+	if TopHash(a, 5) != TopHash(again, 5) {
+		t.Fatal("the same stories should hash the same")
 	}
 }
 

@@ -10,7 +10,7 @@ COPY web/ ./
 COPY schema/ /src/schema/
 RUN pnpm build
 
-FROM golang:1.24-alpine AS server
+FROM golang:1.27-alpine AS server
 WORKDIR /src/server
 COPY server/go.mod server/go.sum* ./
 COPY server/ ./

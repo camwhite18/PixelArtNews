@@ -69,9 +69,13 @@ func run(log *slog.Logger) error {
 	api := &httpapi.Server{Store: st, WebDir: cfg.WebDir, MediaDir: cfg.MediaDir, Log: log}
 	go api.Listen(ctx)
 
+	handler, err := api.Handler()
+	if err != nil {
+		return err
+	}
 	srv := &http.Server{
 		Addr:              cfg.HTTPAddr,
-		Handler:           api.Handler(),
+		Handler:           handler,
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 	go func() {
