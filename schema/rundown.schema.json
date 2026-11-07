@@ -36,6 +36,10 @@
           "items": { "type": "string" },
           "description": "Ids of the presenters on set for this segment (the shift's team), in seat order."
         },
+        "show": {
+          "type": "string",
+          "description": "The show (presenter shift) this segment was made for, e.g. \"breakfast\"; studios dress their set for it."
+        },
         "lines": {
           "type": "array",
           "items": { "$ref": "#/$defs/line" }

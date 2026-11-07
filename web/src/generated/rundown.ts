@@ -36,6 +36,10 @@ export interface Segment {
    * Ids of the presenters on set for this segment (the shift's team), in seat order.
    */
   presenters?: string[];
+  /**
+   * The show (presenter shift) this segment was made for, e.g. "breakfast"; studios dress their set for it.
+   */
+  show?: string;
   lines: Line[];
   sources: Source[];
 }
