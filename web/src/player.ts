@@ -31,6 +31,12 @@ export class Player {
     this.audio.addEventListener('playing', () => {
       this.rejected = false;
     });
+    // Safari (including iPad) ignores a seek made before the new file's
+    // metadata loads, so seek again once it has, to wherever "now" is by then.
+    this.audio.addEventListener('loadedmetadata', () => {
+      const air = onAir(this.rundown, serverNow());
+      if (air && air.segment.id === this.currentId) this.audio.currentTime = air.offsetS;
+    });
   }
 
   private tryPlay() {

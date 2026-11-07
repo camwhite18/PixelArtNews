@@ -36,13 +36,15 @@ CREATE TABLE articles (
     id            BIGSERIAL PRIMARY KEY,
     channel_id    TEXT NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
     feed_id       BIGINT REFERENCES feeds(id) ON DELETE SET NULL,
-    url           TEXT NOT NULL UNIQUE,
+    url           TEXT NOT NULL,
     outlet        TEXT NOT NULL,
     headline      TEXT NOT NULL,
     summary       TEXT NOT NULL DEFAULT '',
     published_at  TIMESTAMPTZ,
     fetched_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
-    embedding     vector(384)
+    embedding     vector(384),
+    -- The same story can belong to two channels (e.g. World and Science).
+    UNIQUE (channel_id, url)
 );
 CREATE INDEX articles_channel_recent ON articles (channel_id, published_at DESC);
 

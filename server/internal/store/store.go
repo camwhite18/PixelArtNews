@@ -163,7 +163,7 @@ func (s *Store) InsertArticle(ctx context.Context, a Article) (bool, error) {
 	tag, err := s.Pool.Exec(ctx, `
 		INSERT INTO articles (channel_id, feed_id, url, outlet, headline, summary, published_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
-		ON CONFLICT (url) DO NOTHING`,
+		ON CONFLICT (channel_id, url) DO NOTHING`,
 		a.ChannelID, a.FeedID, a.URL, a.Outlet, a.Headline, a.Summary, a.PublishedAt)
 	if err != nil {
 		return false, err
@@ -211,10 +211,16 @@ func (s *Store) LastPublishedHash(ctx context.Context, channelID string) (string
 		SELECT top_hash FROM runs
 		WHERE channel_id = $1 AND status = 'published'
 		ORDER BY started_at DESC LIMIT 1`, channelID).Scan(&h)
-	if errors.Is(err, pgx.ErrNoRows) || h == nil {
+	if errors.Is(err, pgx.ErrNoRows) {
 		return "", nil
 	}
-	return *h, err
+	if err != nil {
+		return "", err
+	}
+	if h == nil {
+		return "", nil
+	}
+	return *h, nil
 }
 
 func (s *Store) SaveSegment(ctx context.Context, id, channelID, typ string, script []byte, audioKey string, durationS float64) error {

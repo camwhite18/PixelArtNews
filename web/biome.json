@@ -12,6 +12,6 @@
     "formatter": { "quoteStyle": "single" }
   },
   "linter": {
-    "rules": { "recommended": true }
+    "rules": { "preset": "recommended" }
   }
 }

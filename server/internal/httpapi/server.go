@@ -37,7 +37,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /api/time", s.handleTime)
 	mux.HandleFunc("GET /api/channels", s.handleChannels)
 	mux.HandleFunc("GET /api/events", s.handleEvents)
-	mux.Handle("GET /media/", http.StripPrefix("/media/", mediaCache(http.FileServer(http.Dir(s.MediaDir)))))
+	mux.Handle("GET /media/", http.StripPrefix("/media/", mediaCache(s.MediaDir, http.FileServer(http.Dir(s.MediaDir)))))
 	mux.Handle("GET /", spa(s.WebDir))
 	return mux
 }
@@ -67,15 +67,25 @@ func writeJSON(w http.ResponseWriter, v any) {
 
 // mediaCache sets cache headers: segment audio and versioned rundowns never
 // change, so the Cloudflare edge can keep them; latest.json must stay fresh.
-func mediaCache(next http.Handler) http.Handler {
+// Missing files are never marked immutable, so a 404 (say, for a channel that
+// has not published yet) is not pinned at the edge.
+func mediaCache(dir string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasSuffix(r.URL.Path, "latest.json") {
+		switch {
+		case strings.HasSuffix(r.URL.Path, "latest.json"):
 			w.Header().Set("Cache-Control", "no-cache")
-		} else {
+		case fileExists(filepath.Join(dir, filepath.Clean("/"+r.URL.Path))):
 			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		default:
+			w.Header().Set("Cache-Control", "no-store")
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+func fileExists(p string) bool {
+	fi, err := os.Stat(p)
+	return err == nil && !fi.IsDir()
 }
 
 // spa serves the built front end, falling back to index.html for app routes.
