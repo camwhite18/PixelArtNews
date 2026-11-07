@@ -8,18 +8,19 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "lint": "biome check src",
-    "format": "biome format --write src",
+    "lint": "eslint .",
+    "format": "eslint . --fix",
     "gen:types": "json2ts -i ../schema/rundown.schema.json -o src/generated/rundown.ts --bannerComment \"// Generated from schema/rundown.schema.json by 'pnpm gen:types'. Do not edit.\""
   },
   "dependencies": {
     "preact": "^11.2.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.6.6",
     "@preact/preset-vite": "^2.10.6",
+    "eslint": "^9.39.5",
+    "eslint-config-airbnb-extended": "^3.3.0",
     "json-schema-to-typescript": "^16.0.0",
-    "typescript": "^7.0.2",
+    "typescript": "^6.0.3",
     "vite": "^8.3.6",
     "vitest": "^5.1.0"
   }

@@ -12,7 +12,7 @@ export function App() {
   const [unlocked, setUnlocked] = useState(false);
 
   useEffect(() => {
-    void syncClock();
+    syncClock().catch(() => {});
     fetchChannels()
       .then(setChannels)
       .catch((e: Error) => setError(e.message));

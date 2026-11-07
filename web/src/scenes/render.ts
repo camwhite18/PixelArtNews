@@ -14,28 +14,43 @@ export interface FrameState {
   static?: boolean;
 }
 
-const blinkOn = (time: number, period: number, offset: number) => (time + offset) % period < period * 0.6;
+const blinkOn = (time: number, period: number, offset: number) => (
+  (time + offset) % period < period * 0.6
+);
+
+/** Whether a rect with this animation tag is drawn on this frame. */
+function visible(anim: string | undefined, f: FrameState): boolean {
+  switch (anim) {
+    case 'blink':
+      return blinkOn(f.time, 1200, 0);
+    case 'blink2':
+      return blinkOn(f.time, 1700, 500);
+    case 'mouth0':
+      return f.talking === 0 && f.mouthOpen;
+    case 'mouth1':
+      return f.talking === 1 && f.mouthOpen;
+    default:
+      return true;
+  }
+}
 
 function drawScene(ctx: CanvasRenderingContext2D, scene: SceneData, f: FrameState) {
   ctx.fillStyle = scene.bg;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
-  for (const [x, y, w, h, colour, anim, alpha] of scene.rects) {
-    if (anim === 'blink' && !blinkOn(f.time, 1200, 0)) continue;
-    if (anim === 'blink2' && !blinkOn(f.time, 1700, 500)) continue;
-    if (anim === 'mouth0' && !(f.talking === 0 && f.mouthOpen)) continue;
-    if (anim === 'mouth1' && !(f.talking === 1 && f.mouthOpen)) continue;
+  scene.rects.forEach(([x, y, w, h, colour, anim, alpha]) => {
+    if (!visible(anim, f)) return;
     ctx.globalAlpha = alpha ?? 1;
     ctx.fillStyle = colour;
     ctx.fillRect(x, y, w, h);
-  }
+  });
   ctx.globalAlpha = 1;
-  for (const [x, y, size, colour, text, anchor] of scene.texts) {
+  scene.texts.forEach(([x, y, size, colour, text, anchor]) => {
     ctx.font = `${size}px "Press Start 2P", monospace`;
     ctx.fillStyle = colour;
     ctx.textAlign = anchor === 'middle' ? 'center' : 'left';
     ctx.textBaseline = 'alphabetic';
     ctx.fillText(text, x, y);
-  }
+  });
 }
 
 function drawStatic(ctx: CanvasRenderingContext2D) {
@@ -71,14 +86,21 @@ function drawTestCard(ctx: CanvasRenderingContext2D, f: FrameState) {
 /** Draws one frame of a channel's studio. Unknown or missing scenes show the test card. */
 export function drawFrame(ctx: CanvasRenderingContext2D, sceneId: string | null, f: FrameState) {
   ctx.imageSmoothingEnabled = false;
-  if (f.static) return drawStatic(ctx);
   const scene = sceneId ? SCENES[sceneId] : undefined;
-  if (!scene) return drawTestCard(ctx, f);
-  drawScene(ctx, scene, f);
+  if (f.static) {
+    drawStatic(ctx);
+  } else if (scene) {
+    drawScene(ctx, scene, f);
+  } else {
+    drawTestCard(ctx, f);
+  }
 }
 
 /** Time-based talking for previews, where there is no audio to follow. */
-export function idleTalk(time: number, presenters: number): Pick<FrameState, 'talking' | 'mouthOpen'> {
+export function idleTalk(
+  time: number,
+  presenters: number,
+): Pick<FrameState, 'talking' | 'mouthOpen'> {
   if (presenters === 0) return { talking: null, mouthOpen: false };
   const talking = presenters > 1 ? Math.floor(time / 2000) % 2 : 0;
   return { talking, mouthOpen: Math.floor(time / 180) % 2 === 0 };

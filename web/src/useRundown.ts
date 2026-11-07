@@ -7,18 +7,17 @@ export function useRundown(channelId: string | null): Rundown | null {
   const [rundown, setRundown] = useState<Rundown | null>(null);
 
   useEffect(() => {
-    if (!channelId) return;
+    if (!channelId) return undefined;
     let alive = true;
     let current: Rundown | null = null;
-    const load = () =>
-      fetchRundown(channelId)
-        .then((r) => {
-          if (alive) {
-            current = r;
-            setRundown(r);
-          }
-        })
-        .catch(() => {});
+    const load = () => fetchRundown(channelId)
+      .then((r) => {
+        if (alive) {
+          current = r;
+          setRundown(r);
+        }
+      })
+      .catch(() => {});
 
     setRundown(null);
     load();

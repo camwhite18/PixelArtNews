@@ -1,10 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import {
+  useEffect, useMemo, useRef, useState,
+} from 'preact/hooks';
 import { type Channel, serverNow } from '../api';
 import { Studio } from '../components/Studio';
 import { type NowPlaying, Player } from '../player';
 import { navigate } from '../router';
-import { clockTime, segmentLabel, startMs, upNext } from '../rundown';
+import {
+  clockTime, segmentLabel, startMs, upNext,
+} from '../rundown';
 import { useRundown } from '../useRundown';
+
+const DEFAULT_TICKER = 'Pixel Art News · 24/7 AI news channels';
 
 interface Props {
   channels: Channel[];
@@ -14,7 +20,9 @@ interface Props {
   onUnlock: () => void;
 }
 
-export function Broadcast({ channels, channelId, unlocked, onUnlock }: Props) {
+export function Broadcast({
+  channels, channelId, unlocked, onUnlock,
+}: Props) {
   const index = channels.findIndex((c) => c.id === channelId);
   const channel = channels[index] ?? null;
   const rundown = useRundown(channelId);
@@ -22,7 +30,7 @@ export function Broadcast({ channels, channelId, unlocked, onUnlock }: Props) {
   const [showSources, setShowSources] = useState(false);
   const [staticUntil, setStaticUntil] = useState(0);
   const [now, setNow] = useState(serverNow());
-  const touchY = useRef<number | null>(null);
+  const touchYRef = useRef<number | null>(null);
 
   const player = useMemo(() => new Player(setNp), []);
 
@@ -60,9 +68,11 @@ export function Broadcast({ channels, channelId, unlocked, onUnlock }: Props) {
 
   if (!channel) {
     return (
-      <main class="stage-wrap">
-        <p class="error">
-          Unknown channel. <a href="/">Back to the guide</a>
+      <main className="stage-wrap">
+        <p className="error">
+          Unknown channel.
+          {' '}
+          <a href="/">Back to the guide</a>
         </p>
       </main>
     );
@@ -75,19 +85,19 @@ export function Broadcast({ channels, channelId, unlocked, onUnlock }: Props) {
 
   return (
     <main
-      class="stage-wrap"
+      className="stage-wrap"
       style={{ '--accent': channel.accent }}
       onTouchStart={(e) => {
-        touchY.current = e.touches[0].clientY;
+        touchYRef.current = e.touches[0].clientY;
       }}
       onTouchEnd={(e) => {
-        if (touchY.current === null) return;
-        const dy = e.changedTouches[0].clientY - touchY.current;
-        touchY.current = null;
+        if (touchYRef.current === null) return;
+        const dy = e.changedTouches[0].clientY - touchYRef.current;
+        touchYRef.current = null;
         if (Math.abs(dy) > 60) zap(dy < 0 ? 1 : -1);
       }}
     >
-      <div class="stage">
+      <div className="stage">
         <Studio
           scene={seg ? channel.scene : null}
           presenters={channel.presenters.length}
@@ -97,45 +107,51 @@ export function Broadcast({ channels, channelId, unlocked, onUnlock }: Props) {
           label={`${channel.name} studio`}
         />
 
-        <div class="bug">
-          <span class="bug-net">PXN</span>
-          <span class="bug-ch">{channel.name}</span>
+        <div className="bug">
+          <span className="bug-net">PXN</span>
+          <span className="bug-ch">{channel.name}</span>
         </div>
 
-        <div class="top-right">
-          <div class="row">
+        <div className="top-right">
+          <div className="row">
             {seg && (
-              <span class="badge-live">
-                <span class="dot" aria-hidden="true" />
+              <span className="badge-live">
+                <span className="dot" aria-hidden="true" />
                 LIVE
               </span>
             )}
-            <span class="clock">{clockTime(now)}</span>
+            <span className="clock">{clockTime(now)}</span>
           </div>
           {next && (
-            <span class="next">
-              NEXT {clockTime(startMs(next))} · {segmentLabel(next).toUpperCase()}
+            <span className="next">
+              NEXT
+              {' '}
+              {clockTime(startMs(next))}
+              {' '}
+              ·
+              {' '}
+              {segmentLabel(next).toUpperCase()}
             </span>
           )}
         </div>
 
         {seg ? (
-          <div class="lower-third">
-            <div class="lt-tabs">
-              <span class="kicker">{seg.kicker || segmentLabel(seg).toUpperCase()}</span>
-              <span class="hosts">{hosts}</span>
+          <div className="lower-third">
+            <div className="lt-tabs">
+              <span className="kicker">{seg.kicker || segmentLabel(seg).toUpperCase()}</span>
+              <span className="hosts">{hosts}</span>
             </div>
-            {seg.headline && <div class="lt-headline">{seg.headline}</div>}
+            {seg.headline && <div className="lt-headline">{seg.headline}</div>}
           </div>
         ) : (
-          <div class="lower-third">
-            <div class="lt-headline">Off air — the first broadcast is being prepared.</div>
+          <div className="lower-third">
+            <div className="lt-headline">Off air — the first broadcast is being prepared.</div>
           </div>
         )}
 
-        <div class="controls">
+        <div className="controls">
           <a
-            class="ctl"
+            className="ctl"
             href="/"
             onClick={(e) => {
               e.preventDefault();
@@ -144,16 +160,16 @@ export function Broadcast({ channels, channelId, unlocked, onUnlock }: Props) {
           >
             ◂ GUIDE
           </a>
-          <button type="button" class="ctl" aria-label="Channel up" onClick={() => zap(-1)}>
+          <button type="button" className="ctl" aria-label="Channel up" onClick={() => zap(-1)}>
             CH ▲
           </button>
-          <button type="button" class="ctl" aria-label="Channel down" onClick={() => zap(1)}>
+          <button type="button" className="ctl" aria-label="Channel down" onClick={() => zap(1)}>
             CH ▼
           </button>
           {seg && seg.sources.length > 0 && (
             <button
               type="button"
-              class="ctl"
+              className="ctl"
               aria-expanded={showSources}
               onClick={() => setShowSources(!showSources)}
             >
@@ -163,12 +179,14 @@ export function Broadcast({ channels, channelId, unlocked, onUnlock }: Props) {
         </div>
 
         {showSources && seg && (
-          <div class="sources" role="dialog" aria-label="Sources for this segment">
+          <div className="sources" role="dialog" aria-label="Sources for this segment">
             <ul>
               {seg.sources.map((s) => (
                 <li key={s.id}>
                   <a href={s.url} target="_blank" rel="noopener noreferrer">
-                    {s.outlet} ↗
+                    {s.outlet}
+                    {' '}
+                    ↗
                   </a>
                 </li>
               ))}
@@ -176,12 +194,12 @@ export function Broadcast({ channels, channelId, unlocked, onUnlock }: Props) {
           </div>
         )}
 
-        <div class="ticker">
-          <span class="ticker-ch">{channel.name}</span>
-          <div class="ticker-track">
-            <div class="ticker-run">
-              <span>{seg?.ticker || 'Pixel Art News · 24/7 AI news channels'}</span>
-              <span aria-hidden="true">{seg?.ticker || 'Pixel Art News · 24/7 AI news channels'}</span>
+        <div className="ticker">
+          <span className="ticker-ch">{channel.name}</span>
+          <div className="ticker-track">
+            <div className="ticker-run">
+              <span>{seg?.ticker || DEFAULT_TICKER}</span>
+              <span aria-hidden="true">{seg?.ticker || DEFAULT_TICKER}</span>
             </div>
           </div>
         </div>
@@ -189,7 +207,7 @@ export function Broadcast({ channels, channelId, unlocked, onUnlock }: Props) {
         {seg && (!unlocked || np.blocked) && (
           <button
             type="button"
-            class="power-on"
+            className="power-on"
             onClick={() => {
               onUnlock();
               player.unlock();

@@ -63,7 +63,7 @@ export function onRundownPublished(fn: Listener): () => void {
   if (!source) {
     source = new EventSource('/api/events');
     source.addEventListener('rundown', (e) => {
-      for (const l of listeners) l((e as MessageEvent<string>).data);
+      listeners.forEach((l) => l((e as MessageEvent<string>).data));
     });
   }
   return () => listeners.delete(fn);

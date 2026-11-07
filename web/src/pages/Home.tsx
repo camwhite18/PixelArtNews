@@ -2,7 +2,9 @@ import { useEffect, useState } from 'preact/hooks';
 import { type Channel, serverNow } from '../api';
 import { Studio } from '../components/Studio';
 import { navigate } from '../router';
-import { clockTime, onAir, segmentLabel, startMs, upNext } from '../rundown';
+import {
+  clockTime, onAir, segmentLabel, startMs, upNext,
+} from '../rundown';
 import { useRundown } from '../useRundown';
 
 function useClock() {
@@ -26,12 +28,20 @@ function ChannelCard({ channel, index, now }: { channel: Channel; index: number;
   };
 
   return (
-    <a class="card" href={`/ch/${channel.id}`} onClick={open} style={{ '--accent': channel.accent }}>
-      <div class="card-head">
+    <a
+      className="card"
+      href={`/ch/${channel.id}`}
+      onClick={open}
+      style={{ '--accent': channel.accent }}
+    >
+      <div className="card-head">
         <h2>{channel.name}</h2>
-        <span class="muted pixel-sm">CH {index + 1}</span>
+        <span className="muted pixel-sm">
+          CH
+          {index + 1}
+        </span>
       </div>
-      <div class="card-frame">
+      <div className="card-frame">
         <Studio
           scene={channel.scene}
           presenters={channel.presenters.length}
@@ -39,30 +49,41 @@ function ChannelCard({ channel, index, now }: { channel: Channel; index: number;
         />
         {air && (
           <>
-            <span class="badge-live card-live">
-              <span class="dot" aria-hidden="true" />
+            <span className="badge-live card-live">
+              <span className="dot" aria-hidden="true" />
               LIVE
             </span>
-            <div class="card-lower">
-              <span class="kicker">{air.segment.kicker || segmentLabel(air.segment)}</span>
-              {air.segment.headline && <span class="headline">{air.segment.headline}</span>}
+            <div className="card-lower">
+              <span className="kicker">{air.segment.kicker || segmentLabel(air.segment)}</span>
+              {air.segment.headline && <span className="headline">{air.segment.headline}</span>}
             </div>
-            {air.segment.ticker && <div class="card-ticker">{air.segment.ticker}</div>}
+            {air.segment.ticker && <div className="card-ticker">{air.segment.ticker}</div>}
           </>
         )}
       </div>
-      <div class="card-meta">
+      <div className="card-meta">
         {air ? (
           <div>
-            <span class="accent">Now</span> {segmentLabel(air.segment)}
+            <span className="accent">Now</span>
+            {' '}
+            {segmentLabel(air.segment)}
           </div>
         ) : (
-          <div class="muted">Off air — first broadcast coming up</div>
+          <div className="muted">Off air — first broadcast coming up</div>
         )}
-        {hosts && <div class="muted">with {hosts}</div>}
+        {hosts && (
+        <div className="muted">
+          with
+          {hosts}
+        </div>
+        )}
         {next && (
-          <div class="muted">
-            Next {clockTime(startMs(next))} {segmentLabel(next)}
+          <div className="muted">
+            Next
+            {' '}
+            {clockTime(startMs(next))}
+            {' '}
+            {segmentLabel(next)}
           </div>
         )}
       </div>
@@ -73,35 +94,39 @@ function ChannelCard({ channel, index, now }: { channel: Channel; index: number;
 export function Home({ channels, error }: { channels: Channel[]; error: string | null }) {
   const now = useClock();
   return (
-    <main class="home">
-      <header class="home-head">
+    <main className="home">
+      <header className="home-head">
         <div>
-          <div class="logo">
-            <span class="logo-mark" aria-hidden="true" />
+          <div className="logo">
+            <span className="logo-mark" aria-hidden="true" />
             <h1>PIXEL NEWS</h1>
           </div>
-          <p class="muted">24/7 AI news channels. Pick a channel to tune in.</p>
+          <p className="muted">24/7 AI news channels. Pick a channel to tune in.</p>
         </div>
-        <div class="home-status">
-          <span class="badge-live">
-            <span class="dot" aria-hidden="true" />
+        <div className="home-status">
+          <span className="badge-live">
+            <span className="dot" aria-hidden="true" />
             ON AIR
           </span>
           <span>{clockTime(now)}</span>
         </div>
       </header>
 
-      {error && <p class="error">Couldn't load channels: {error}</p>}
+      {error && (
+      <p className="error">
+        {`Couldn't load channels: ${error}`}
+      </p>
+      )}
 
-      <div class="grid">
+      <div className="grid">
         {channels.map((c, i) => (
           <ChannelCard key={c.id} channel={c} index={i} now={now} />
         ))}
       </div>
 
-      <p class="muted disclaimer">
-        Headlines are AI-generated summaries of reporting from the linked outlets. Pixel News is not a news
-        organisation.
+      <p className="muted disclaimer">
+        Headlines are AI-generated summaries of reporting from the linked outlets.
+        Pixel News is not a news organisation.
       </p>
     </main>
   );

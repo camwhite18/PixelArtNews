@@ -1,18 +1,21 @@
 import type { Line, Rundown, Segment } from './generated/rundown';
 
-export type { Line, Rundown, Segment, Source } from './generated/rundown';
+export type {
+  Line, Rundown, Segment, Source,
+} from './generated/rundown';
 
 export const startMs = (s: Segment) => Date.parse(s.start);
 export const endMs = (s: Segment) => startMs(s) + s.durationS * 1000;
 
+export interface OnAir {
+  segment: Segment;
+  offsetS: number;
+}
+
 /** The segment airing at `now` (ms since epoch) and the offset into it in seconds. */
-export function onAir(r: Rundown | null, now: number): { segment: Segment; offsetS: number } | null {
-  if (!r) return null;
-  for (const s of r.segments) {
-    const start = startMs(s);
-    if (now >= start && now < endMs(s)) return { segment: s, offsetS: (now - start) / 1000 };
-  }
-  return null;
+export function onAir(r: Rundown | null, now: number): OnAir | null {
+  const segment = r?.segments.find((s) => now >= startMs(s) && now < endMs(s));
+  return segment ? { segment, offsetS: (now - startMs(segment)) / 1000 } : null;
 }
 
 /** The first segment starting after `now`. */
@@ -22,12 +25,10 @@ export function upNext(r: Rundown | null, now: number): Segment | null {
 
 /** The line being spoken `offsetS` seconds into a segment. */
 export function lineAt(s: Segment, offsetS: number): Line | null {
-  let current: Line | null = null;
-  for (const l of s.lines) {
-    if ((l.startS ?? 0) <= offsetS) current = l;
-    else break;
-  }
-  return current;
+  // Lines are in speaking order; the current one is the last to have started.
+  const firstUnstarted = s.lines.findIndex((l) => (l.startS ?? 0) > offsetS);
+  const started = firstUnstarted === -1 ? s.lines.length : firstUnstarted;
+  return started > 0 ? s.lines[started - 1] : null;
 }
 
 /** True when the schedule ends within `withinMs`, so it is worth refetching. */
@@ -48,5 +49,7 @@ const SEGMENT_LABELS: Record<Segment['type'], string> = {
 
 export const segmentLabel = (s: Segment) => SEGMENT_LABELS[s.type] ?? s.type;
 
-export const clockTime = (ms: number) =>
-  new Date(ms).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+export const clockTime = (ms: number) => new Date(ms).toLocaleTimeString('en-GB', {
+  hour: '2-digit',
+  minute: '2-digit',
+});

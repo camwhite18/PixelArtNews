@@ -1,5 +1,7 @@
 import { mediaUrl, serverNow } from './api';
-import { endMs, lineAt, onAir, type Rundown, type Segment, upNext } from './rundown';
+import {
+  endMs, lineAt, onAir, type Rundown, type Segment, upNext,
+} from './rundown';
 
 export interface NowPlaying {
   segment: Segment | null;
@@ -17,13 +19,21 @@ export interface NowPlaying {
  */
 export class Player {
   private audio = new Audio();
+
   private ctx: AudioContext | null = null;
+
   private analyser: AnalyserNode | null = null;
+
   private samples = new Uint8Array(256);
+
   private rundown: Rundown | null = null;
+
   private currentId: string | null = null;
+
   private timer: number | undefined;
+
   private prefetched = new Set<string>();
+
   private rejected = false;
 
   constructor(private onChange: (np: NowPlaying) => void) {
@@ -48,7 +58,7 @@ export class Player {
   /** Must run inside a user gesture: creates the audio graph for lip-sync. */
   unlock() {
     if (this.ctx) {
-      void this.ctx.resume();
+      this.ctx.resume().catch(() => {});
       return;
     }
     try {
@@ -84,8 +94,7 @@ export class Player {
   level(): number {
     if (!this.analyser || this.audio.paused) return 0;
     this.analyser.getByteTimeDomainData(this.samples);
-    let sum = 0;
-    for (const v of this.samples) sum += ((v - 128) / 128) ** 2;
+    const sum = this.samples.reduce((acc, v) => acc + ((v - 128) / 128) ** 2, 0);
     return Math.sqrt(sum / this.samples.length);
   }
 
@@ -122,6 +131,6 @@ export class Player {
     const air = onAir(this.rundown, now);
     if (air && endMs(air.segment) - now > 20_000) return;
     this.prefetched.add(next.id);
-    void fetch(mediaUrl(next.audio)).catch(() => {});
+    fetch(mediaUrl(next.audio)).catch(() => {});
   }
 }

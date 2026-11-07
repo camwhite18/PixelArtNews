@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { Rundown, Segment } from './rundown';
-import { lineAt, onAir, runningLow, upNext } from './rundown';
+import {
+  lineAt, onAir, runningLow, upNext,
+} from './rundown';
 
 const T0 = Date.parse('2026-11-07T13:00:00Z');
 
@@ -13,7 +15,9 @@ function seg(id: string, startOffsetS: number, durationS: number): Segment {
     audio: `audio/world/${id}.mp3`,
     lines: [
       { speaker: 'margot', text: 'One', sourceIds: ['s1'] },
-      { speaker: 'kofi', text: 'Two', startS: 4.5, sourceIds: ['s1'] },
+      {
+        speaker: 'kofi', text: 'Two', startS: 4.5, sourceIds: ['s1'],
+      },
     ],
     sources: [{ id: 's1', outlet: 'Example', url: 'https://example.com' }],
   };

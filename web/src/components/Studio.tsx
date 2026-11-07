@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'preact/hooks';
-import { drawFrame, HEIGHT, idleTalk, WIDTH } from '../scenes/render';
+import {
+  drawFrame, HEIGHT, idleTalk, WIDTH,
+} from '../scenes/render';
 
 interface Props {
   scene: string | null;
@@ -14,19 +16,28 @@ interface Props {
 }
 
 /** A channel's pixel studio, drawn at 320x180 and scaled up with crisp pixels. */
-export function Studio({ scene, presenters, talking, level, staticUntil = 0, label }: Props) {
-  const canvas = useRef<HTMLCanvasElement>(null);
-  const props = useRef({ scene, presenters, talking, level, staticUntil });
-  props.current = { scene, presenters, talking, level, staticUntil };
+export function Studio({
+  scene, presenters, talking, level, staticUntil = 0, label,
+}: Props) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const propsRef = useRef({
+    scene, presenters, talking, level, staticUntil,
+  });
+  // The animation loop reads the latest props without restarting.
+  useEffect(() => {
+    propsRef.current = {
+      scene, presenters, talking, level, staticUntil,
+    };
+  });
 
   useEffect(() => {
-    const ctx = canvas.current?.getContext('2d');
-    if (!ctx) return;
+    const ctx = canvasRef.current?.getContext('2d');
+    if (!ctx) return undefined;
     let raf = 0;
     let lastMouth = 0;
     let mouthOpen = false;
     const frame = (time: number) => {
-      const p = props.current;
+      const p = propsRef.current;
       let state = idleTalk(time, p.presenters);
       if (p.talking !== undefined) {
         // Pixel mouths look best toggling at ~8fps rather than every frame.
@@ -43,5 +54,9 @@ export function Studio({ scene, presenters, talking, level, staticUntil = 0, lab
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  return <canvas ref={canvas} class="studio" width={WIDTH} height={HEIGHT} role="img" aria-label={label} />;
+  return (
+    <canvas ref={canvasRef} className="studio" width={WIDTH} height={HEIGHT} aria-label={label}>
+      {label}
+    </canvas>
+  );
 }
