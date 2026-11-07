@@ -100,8 +100,11 @@ After changing `schema/rundown.schema.json`, run `pnpm gen:types` in `web/` and 
 
 ## Content and legal notes
 
-- Only RSS headlines and summaries are used; anchors paraphrase and link back to the outlets.
-- Check each feed's terms before relying on it. Weird News has no starter feeds yet.
+- Only RSS headlines and summaries are used (summaries capped at 400 characters); anchors paraphrase everything, headlines included, and every story shows its outlet and a link.
+- Feeds were chosen in November 2026 for publishers whose terms allow, or don't forbid, non-commercial use with attribution; `server/migrations/00004_more_feeds.sql` lists what was left out and why. Most terms say "personal, non-commercial", so keep the site free of ads and monetisation.
+- NASA's guidelines bar crediting AI output to NASA, so scripts never say "according to NASA" (or any outlet); the on-screen links do the crediting.
+- Weird News skips stories about death, injury, illness, crime victims or private people being mocked.
+- A public site like this is a grey area under "personal use" clauses. A short courtesy email to each publisher is the cheapest way to settle it, especially UPI, whose terms are the strictest.
 - The site labels itself as AI-generated and not a news organisation.
 
 ## Not built yet
