@@ -16,6 +16,8 @@ Self-hosted 24/7 pixel-art AI news channels. See README.md for the architecture.
 - Secrets live in `.env` on the server only.
 
 ## Checks
-- `cd server && go vet ./... && go test ./...`
-- `cd web && pnpm lint && pnpm test && pnpm build`
+- `cd server && go vet ./... && go test ./... && golangci-lint run ./...` (config: `server/.golangci.yml`)
+- `cd web && pnpm lint && pnpm test && pnpm build` (ESLint with Airbnb style; `pnpm format` fixes style)
 - `cd tts && pytest`
+- Security: `make govulncheck` and `make trivy` (`trivy fs`); CI runs both
+- Web stays on TypeScript 6 until typescript-eslint supports TS 7.

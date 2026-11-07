@@ -1,0 +1,52 @@
+# golangci-lint v2 configuration for the Go server.
+# Run from server/: golangci-lint run ./...
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  # "standard" = errcheck, govet, ineffassign, staticcheck, unused.
+  default: standard
+  enable:
+    - bodyclose       # unclosed HTTP response bodies (feeds, TTS calls)
+    - errorlint       # wrapped-error comparisons use errors.Is / errors.As
+    - gocritic
+    - gosec
+    - misspell
+    - noctx           # HTTP requests carry a context
+    - revive
+    - rowserrcheck    # pgx rows.Err() checked
+    - sqlclosecheck   # pgx rows closed
+    - unconvert
+    - unparam
+    - usestdlibvars
+  settings:
+    misspell:
+      # Copy and comments are written in British English.
+      locale: UK
+    gosec:
+      excludes:
+        - G304 # file paths are built from internal ids, not user input
+    revive:
+      rules:
+        - name: exported
+          disabled: true # internal packages; doc comments where they help
+  exclusions:
+    presets:
+      - comments
+      - std-error-handling
+    rules:
+      - path: _test\.go
+        linters:
+          - gosec
+          - unparam
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/camwhite18/pixelartnews

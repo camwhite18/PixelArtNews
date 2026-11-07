@@ -56,7 +56,7 @@ docker compose exec server /app/server run world
 
 ### First build: commit `go.sum`
 
-This scaffold was written in a sandbox that couldn't reach the Go checksum database, so `go.sum` isn't committed yet and the Docker build generates it. On a normal machine, run `cd server && go mod tidy` once and commit the resulting `go.sum` to pin module hashes.
+This scaffold was written in a sandbox that couldn't reach the Go checksum database, so `go.sum` isn't committed yet and the Docker build generates it. Run `make tidy` (or `cd server && go mod tidy`) once and commit the resulting `go.sum` to pin module hashes; the Go lint and vulnerability checks need it.
 
 ## Development
 
@@ -74,13 +74,19 @@ cd web && pnpm install && pnpm dev
 
 Postgres isn't published to the host by default; add `ports: ["127.0.0.1:5432:5432"]` to the `postgres` service for local development.
 
-Checks:
+Checks (CI runs all of these on every push and pull request, in `.github/workflows/ci.yml`):
 
-```sh
-cd server && go test ./...
-cd web && pnpm test && pnpm lint && pnpm build
-cd tts && pytest
-```
+| Check | What | Run locally |
+| --- | --- | --- |
+| Web lint | ESLint with the Airbnb style ([eslint-config-airbnb-extended](https://www.npmjs.com/package/eslint-config-airbnb-extended)); also the formatter (`pnpm format`) | `make lint-web` |
+| Go lint | golangci-lint v2, configured in `server/.golangci.yml` | `make lint-go` |
+| Tests | Vitest, `go test`, pytest | `make test` |
+| Go vulnerabilities | govulncheck: known vulnerabilities in code paths the server actually calls | `make govulncheck` |
+| Filesystem scan | `trivy fs`: vulnerable dependencies in every lockfile, committed secrets, Dockerfile and Compose misconfigurations (HIGH and CRITICAL, fixed upstream) | `make trivy` |
+
+`make check` runs everything. The Go and Trivy targets run in Docker, so the server only needs Docker and pnpm.
+
+The web app stays on TypeScript 6 because typescript-eslint doesn't support TypeScript 7 yet.
 
 After changing `schema/rundown.schema.json`, run `pnpm gen:types` in `web/` and update the Go structs in `server/internal/rundown`; a Go test fails if they drift.
 
