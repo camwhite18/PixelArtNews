@@ -14,6 +14,9 @@
 // Seats: where presenters sit: the head's left edge for a solo host (`one`)
 // and for a pair (`two`), in seat order.
 
+import { f1Scene } from './f1';
+import { footballScene } from './football';
+
 export type Fx = 'blink' | 'blink2' | 'dither';
 export type Rect = [number, number, number, number, string, Fx?, number?];
 export type Font = 'label' | 'display';
@@ -439,5 +442,5 @@ const weird: SceneData = {
 };
 
 export const SCENES: Record<string, SceneData> = {
-  world, tech, science, sport, weird,
+  world, tech, science, sport, football: footballScene, f1: f1Scene, weird,
 };

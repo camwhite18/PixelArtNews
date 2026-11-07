@@ -10,6 +10,8 @@ like the real channels: natural pauses, room tone and the broadcast chain.
 Needs: pip install kokoro-onnx numpy, ffmpeg on PATH, and the model files
 from https://github.com/thewh1teagle/kokoro-onnx/releases (model-files-v1.0):
   python demo/generate.py --model kokoro-v1.0.int8.onnx --voices voices-v1.0.bin
+
+Add --only world,tech to re-voice just those channels and keep the rest.
 """
 
 import argparse
@@ -38,7 +40,9 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True)
     ap.add_argument("--voices", required=True)
+    ap.add_argument("--only", help="comma-separated channel ids to (re)generate")
     args = ap.parse_args()
+    only = set(args.only.split(",")) if args.only else None
 
     script = json.loads((HERE / "script.json").read_text())
     # {"margot": {"voice": "bf_emma", "speed": 0.95}, ...}; older scripts have
@@ -50,11 +54,16 @@ def main() -> None:
     (out / "audio").mkdir(parents=True, exist_ok=True)
 
     kokoro = Kokoro(args.model, args.voices)
-    result: dict[str, dict] = {}
+    timings = out / "segments.json"
+    result: dict[str, dict] = (
+        json.loads(timings.read_text()) if only and timings.exists() else {}
+    )
     spoken_s = 0.0
     started = time.perf_counter()
 
     for channel in script["channels"]:
+        if only and channel["id"] not in only:
+            continue
         for seg in channel["segments"]:
             chunks, voices, texts = [], [], []
             for speaker, text in seg["lines"]:
@@ -73,7 +82,7 @@ def main() -> None:
             result[seg["id"]] = {"durationS": round(duration, 3), "lineStarts": starts}
             print(f"{seg['id']}: {duration:.1f}s")
 
-    (out / "segments.json").write_text(json.dumps(result, indent=2) + "\n")
+    timings.write_text(json.dumps(result, indent=2) + "\n")
     elapsed = time.perf_counter() - started
     print(f"\n{spoken_s:.0f}s of speech in {elapsed:.0f}s ({spoken_s / elapsed:.2f}x real time)")
 

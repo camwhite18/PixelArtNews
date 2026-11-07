@@ -6,8 +6,10 @@
 // the set but not its lights), `back`, the presenters, the desk.
 import type { Rect, Text } from './data';
 import {
-  bands, type Box, clip, disc, pine, rng, skyline, stars,
+  bands, type Box, clip, disc, LIGHT, pine, rng, skyline, stars,
 } from './draw';
+import { f1Shows } from './f1';
+import { footballShows } from './football';
 
 export type ShowId = 'breakfast' | 'daytime' | 'evening' | 'overnight';
 export const SHOW_IDS: ShowId[] = ['breakfast', 'daytime', 'evening', 'overnight'];
@@ -23,9 +25,7 @@ export interface Show {
   texts?: Text[];
 }
 
-const MORNING: [string, number] = ['#ffb36b', 0.1];
-const DUSK: [string, number] = ['#5a2a8a', 0.12];
-const NIGHT: [string, number] = ['#02040c', 0.42];
+const { morning: MORNING, dusk: DUSK, night: NIGHT } = LIGHT;
 const CANVAS: Box = {
   x: 0, y: 0, w: 320, h: 180,
 };
@@ -386,7 +386,7 @@ const weird: Partial<Record<ShowId, Show>> = {
 };
 
 const SHOWS: Record<string, Partial<Record<ShowId, Show>>> = {
-  world, tech, science, sport, weird,
+  world, tech, science, sport, football: footballShows, f1: f1Shows, weird,
 };
 
 /** How a studio is dressed for a show; unknown shows get the daytime look. */

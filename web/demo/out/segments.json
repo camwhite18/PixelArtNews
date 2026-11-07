@@ -159,5 +159,69 @@
       0.0,
       2.25
     ]
+  },
+  "football-breakfast": {
+    "durationS": 13.002,
+    "lineStarts": [
+      0.0,
+      5.447,
+      9.946
+    ]
+  },
+  "football-daytime": {
+    "durationS": 13.181,
+    "lineStarts": [
+      0.0,
+      4.837,
+      10.469
+    ]
+  },
+  "football-evening": {
+    "durationS": 14.972,
+    "lineStarts": [
+      0.0,
+      5.301,
+      9.816,
+      12.828
+    ]
+  },
+  "football-overnight": {
+    "durationS": 7.925,
+    "lineStarts": [
+      0.0,
+      4.466
+    ]
+  },
+  "f1-breakfast": {
+    "durationS": 13.056,
+    "lineStarts": [
+      0.0,
+      5.408,
+      10.815
+    ]
+  },
+  "f1-daytime": {
+    "durationS": 13.52,
+    "lineStarts": [
+      0.0,
+      6.05,
+      11.301
+    ]
+  },
+  "f1-evening": {
+    "durationS": 13.569,
+    "lineStarts": [
+      0.0,
+      5.384,
+      9.535,
+      11.289
+    ]
+  },
+  "f1-overnight": {
+    "durationS": 9.252,
+    "lineStarts": [
+      0.0,
+      4.685
+    ]
   }
 }

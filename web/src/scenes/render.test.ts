@@ -28,7 +28,9 @@ const inside = ([x, y, w, h]: number[]) => x >= 0 && y >= 0 && x + w <= WIDTH &&
 
 describe('studios', () => {
   it('has a studio for every channel', () => {
-    expect(Object.keys(SCENES).sort()).toEqual(['science', 'sport', 'tech', 'weird', 'world']);
+    expect(Object.keys(SCENES).sort()).toEqual(
+      ['f1', 'football', 'science', 'sport', 'tech', 'weird', 'world'],
+    );
   });
 
   describe.each(Object.entries(SCENES))('%s', (_, scene) => {
