@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/mmcdole/gofeed"
 
@@ -19,6 +20,27 @@ func cleanText(s string) string {
 	s = tagRE.ReplaceAllString(s, " ")
 	s = html.UnescapeString(s)
 	return strings.Join(strings.Fields(s), " ")
+}
+
+// maxSummary caps how much of a feed's summary is kept. Some feeds (the
+// Guardian's) carry the article's opening paragraphs; scripts should be built
+// from a short summary, not something close to the full text.
+const maxSummary = 400
+
+// trimSummary shortens s to at most maxSummary bytes, at a word boundary.
+func trimSummary(s string) string {
+	if len(s) <= maxSummary {
+		return s
+	}
+	cut := strings.LastIndexByte(s[:maxSummary], ' ')
+	if cut <= 0 {
+		// One long word: cut at a character boundary instead.
+		cut = maxSummary
+		for cut > 0 && !utf8.RuneStart(s[cut]) {
+			cut--
+		}
+	}
+	return strings.TrimRight(s[:cut], " ,;:") + "…"
 }
 
 // Ingest fetches every enabled feed for a channel and stores new articles.
@@ -51,7 +73,7 @@ func (p *Pipeline) Ingest(ctx context.Context, channelID string) (int, error) {
 				URL:         it.Link,
 				Outlet:      f.Outlet,
 				Headline:    cleanText(it.Title),
-				Summary:     cleanText(it.Description),
+				Summary:     trimSummary(cleanText(it.Description)),
 				PublishedAt: it.PublishedParsed,
 			}
 			isNew, err := p.Store.InsertArticle(ctx, a)
