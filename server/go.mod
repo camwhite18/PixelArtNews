@@ -1,6 +1,6 @@
 module github.com/camwhite18/pixelartnews/server
 
-go 1.26.10
+go 1.27.3
 
 require (
 	github.com/anthropics/anthropic-sdk-go v1.30.0
