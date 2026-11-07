@@ -9,6 +9,7 @@ import (
 	"github.com/anthropics/anthropic-sdk-go"
 
 	"github.com/camwhite18/pixelartnews/server/internal/rundown"
+	"github.com/camwhite18/pixelartnews/server/internal/shifts"
 	"github.com/camwhite18/pixelartnews/server/internal/store"
 )
 
@@ -119,8 +120,9 @@ func personaPrompt(ch store.Channel) string {
 	return b.String()
 }
 
-// WriteScript asks Claude for this hour's headlines and story packages.
-func (p *Pipeline) WriteScript(ctx context.Context, ch store.Channel, clusters []Cluster) ([]ScriptSegment, []rundown.Source, error) {
+// WriteScript asks Claude for this hour's headlines and story packages,
+// presented by the team in ch.Presenters during the given shift.
+func (p *Pipeline) WriteScript(ctx context.Context, ch store.Channel, slot shifts.Slot, clusters []Cluster) ([]ScriptSegment, []rundown.Source, error) {
 	if p.Claude == nil {
 		return nil, nil, fmt.Errorf("ANTHROPIC_API_KEY is not set")
 	}
@@ -130,14 +132,17 @@ func (p *Pipeline) WriteScript(ctx context.Context, ch store.Channel, clusters [
 		speakers = append(speakers, pr.ID)
 	}
 
-	user := fmt.Sprintf(`Sources for this hour:
+	user := fmt.Sprintf(`On air: the %s shift, %s to %s. Greet viewers the way this team would at this time of day.
+
+Sources for this hour:
 
 %s
 Write:
 1. One "headlines" segment of about 45 seconds covering the top three to five stories.
 2. One "story" segment of about 60 to 90 seconds for each of the top three stories.
 
-Every line must cite sourceIds from the list above.`, src.text)
+Every line must cite sourceIds from the list above.`,
+		slot.Name, slot.From.In(p.Cfg.Location).Format("15:04"), slot.Until.In(p.Cfg.Location).Format("15:04"), src.text)
 
 	msg, err := p.Claude.Messages.New(ctx, anthropic.MessageNewParams{
 		Model:     p.Cfg.ModelMain,

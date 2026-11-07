@@ -17,6 +17,7 @@ import (
 
 	"github.com/camwhite18/pixelartnews/server/internal/config"
 	"github.com/camwhite18/pixelartnews/server/internal/rundown"
+	"github.com/camwhite18/pixelartnews/server/internal/shifts"
 	"github.com/camwhite18/pixelartnews/server/internal/store"
 )
 
@@ -85,7 +86,18 @@ func (p *Pipeline) Run(ctx context.Context, channelID string, force bool) (statu
 		return StatusEmpty, nil
 	}
 
-	hash = TopHash(clusters, 5)
+	// The team on air, and the next one if their shift starts before the
+	// following run: that run would be too late to script the handover.
+	now := time.Now()
+	cur, next := shifts.At(now, p.Cfg.Location)
+	handover := next.From.Before(now.Add(p.Cfg.PipelineInterval + 10*time.Minute))
+
+	// A new shift (or an upcoming handover) needs a new script even when
+	// the stories haven't changed.
+	hash = TopHash(clusters, 5) + "|" + cur.ID
+	if handover {
+		hash += ">" + next.ID
+	}
 	if !force {
 		last, err := p.Store.LastPublishedHash(ctx, channelID)
 		if err != nil {
@@ -97,26 +109,23 @@ func (p *Pipeline) Run(ctx context.Context, channelID string, force bool) (statu
 		}
 	}
 
-	script, sources, err := p.WriteScript(ctx, ch, clusters)
-	if err != nil {
-		return "", fmt.Errorf("script: %w", err)
+	slots := []shifts.Slot{cur}
+	if handover {
+		slots = append(slots, next)
 	}
-	if len(script) == 0 {
-		return "", fmt.Errorf("script: every line failed the grounding check")
-	}
-
-	voices := map[string]string{}
-	for _, pr := range ch.Presenters {
-		voices[pr.ID] = pr.Voice
-	}
-
-	var fresh []rundown.Segment
-	for _, s := range script {
-		seg, err := p.voice(ctx, ch.ID, s, sources, voices)
+	var blocks []rundown.Block
+	fresh := 0
+	for i, slot := range slots {
+		segs, err := p.produce(ctx, ch, slot, clusters)
 		if err != nil {
-			return "", err
+			return "", fmt.Errorf("%s shift: %w", slot.ID, err)
 		}
-		fresh = append(fresh, seg)
+		from := now
+		if i > 0 {
+			from = slot.From
+		}
+		blocks = append(blocks, rundown.Block{From: from, Segments: segs})
+		fresh += len(segs)
 	}
 
 	prev, err := LoadLatest(p.Cfg.MediaDir, channelID)
@@ -124,21 +133,54 @@ func (p *Pipeline) Run(ctx context.Context, channelID string, force bool) (statu
 		p.Log.Warn("ignoring unreadable rundown", "channel", channelID, "err", err)
 		prev = nil
 	}
-	next := rundown.Extend(prev, channelID, fresh, time.Now(), p.Cfg.ScheduleHorizon)
-	if err := Publish(p.Cfg.MediaDir, runID, next); err != nil {
+	sched := rundown.ExtendBlocks(prev, channelID, blocks, now, p.Cfg.ScheduleHorizon)
+	if err := Publish(p.Cfg.MediaDir, runID, sched); err != nil {
 		return "", fmt.Errorf("publish: %w", err)
 	}
 	if err := p.Store.NotifyPublished(ctx, channelID); err != nil {
 		p.Log.Warn("notify failed", "err", err)
 	}
-	p.Log.Info("published", "channel", channelID, "segments", len(fresh), "scheduled", len(next.Segments))
+	p.Log.Info("published", "channel", channelID, "shift", cur.ID, "handover", handover,
+		"segments", fresh, "scheduled", len(sched.Segments))
 	return StatusPublished, nil
 }
 
-func (p *Pipeline) voice(ctx context.Context, channelID string, s ScriptSegment, sources []rundown.Source, voices map[string]string) (rundown.Segment, error) {
+// produce scripts and voices this hour's segments for one shift's team.
+func (p *Pipeline) produce(ctx context.Context, ch store.Channel, slot shifts.Slot, clusters []Cluster) ([]rundown.Segment, error) {
+	team := ch.OnShift(slot.ID)
+	onSet := ch
+	onSet.Presenters = team
+
+	script, sources, err := p.WriteScript(ctx, onSet, slot, clusters)
+	if err != nil {
+		return nil, fmt.Errorf("script: %w", err)
+	}
+	if len(script) == 0 {
+		return nil, fmt.Errorf("script: every line failed the grounding check")
+	}
+
+	var segs []rundown.Segment
+	for _, s := range script {
+		seg, err := p.voice(ctx, ch.ID, s, sources, team)
+		if err != nil {
+			return nil, err
+		}
+		segs = append(segs, seg)
+	}
+	return segs, nil
+}
+
+func (p *Pipeline) voice(ctx context.Context, channelID string, s ScriptSegment, sources []rundown.Source, team []store.Presenter) (rundown.Segment, error) {
+	byID := map[string]store.Presenter{}
+	var onSet []string
+	for _, pr := range team {
+		byID[pr.ID] = pr
+		onSet = append(onSet, pr.ID)
+	}
 	var lines []TTSLine
 	for _, l := range s.Lines {
-		lines = append(lines, TTSLine{Text: l.Text, Voice: voices[l.Speaker]})
+		pr := byID[l.Speaker]
+		lines = append(lines, TTSLine{Text: l.Text, Voice: pr.Voice, Speed: pr.Speed})
 	}
 	res, err := p.TTS.Synthesize(ctx, lines)
 	if err != nil {
@@ -160,15 +202,16 @@ func (p *Pipeline) voice(ctx context.Context, channelID string, s ScriptSegment,
 		return rundown.Segment{}, err
 	}
 	return rundown.Segment{
-		ID:        id,
-		Type:      s.Type,
-		DurationS: res.DurationS,
-		Audio:     key,
-		Kicker:    s.Kicker,
-		Headline:  s.Headline,
-		Ticker:    s.Ticker,
-		Lines:     s.Lines,
-		Sources:   SourcesFor(s, sources),
+		ID:         id,
+		Type:       s.Type,
+		DurationS:  res.DurationS,
+		Audio:      key,
+		Kicker:     s.Kicker,
+		Headline:   s.Headline,
+		Ticker:     s.Ticker,
+		Presenters: onSet,
+		Lines:      s.Lines,
+		Sources:    SourcesFor(s, sources),
 	}, nil
 }
 

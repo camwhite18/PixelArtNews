@@ -15,14 +15,15 @@ func sample(now time.Time) Rundown {
 		Channel:     "world",
 		GeneratedAt: now,
 		Segments: []Segment{{
-			ID:        "seg_1",
-			Type:      TypeHeadlines,
-			Start:     now,
-			DurationS: 42.5,
-			Audio:     "audio/world/seg_1.mp3",
-			Kicker:    "TOP STORY",
-			Headline:  "Example headline",
-			Ticker:    "Example ticker",
+			ID:         "seg_1",
+			Type:       TypeHeadlines,
+			Start:      now,
+			DurationS:  42.5,
+			Audio:      "audio/world/seg_1.mp3",
+			Kicker:     "TOP STORY",
+			Headline:   "Example headline",
+			Ticker:     "Example ticker",
+			Presenters: []string{"margot", "kofi"},
 			Lines: []Line{
 				{Speaker: "margot", Text: "Good afternoon.", SourceIDs: []string{"s1"}},
 				{Speaker: "kofi", Text: "And here's why it matters.", StartS: 3.2, SourceIDs: []string{"s1"}},
@@ -120,5 +121,57 @@ func TestOnAir(t *testing.T) {
 	}
 	if _, _, ok := r.OnAir(now.Add(2 * time.Minute)); ok {
 		t.Fatal("nothing should be on air after the schedule ends")
+	}
+}
+
+func TestExtendBlocksHandsOverAtTheShiftChange(t *testing.T) {
+	now := time.Date(2026, 11, 7, 16, 50, 0, 0, time.UTC)
+	change := now.Add(10 * time.Minute)
+	day := seg("day", 90)
+	eve := seg("eve", 60)
+
+	got := ExtendBlocks(nil, "world", []Block{
+		{From: now, Segments: []Segment{day}},
+		{From: change, Segments: []Segment{eve}},
+	}, now, time.Hour)
+
+	sawEvening := false
+	for i, s := range got.Segments {
+		if i > 0 && !s.Start.Equal(got.Segments[i-1].End()) {
+			t.Fatalf("gap or overlap before segment %d", i)
+		}
+		switch s.ID {
+		case "day":
+			if sawEvening || !s.Start.Before(change) {
+				t.Fatalf("daytime segment starts at %v, after the handover", s.Start)
+			}
+		case "eve":
+			if !sawEvening {
+				sawEvening = true
+				// The daytime segment playing at the change finishes first.
+				if s.Start.Before(change) || s.Start.After(change.Add(90*time.Second)) {
+					t.Fatalf("evening team starts at %v, want just after %v", s.Start, change)
+				}
+			}
+		}
+	}
+	if !sawEvening {
+		t.Fatal("the evening team never comes on")
+	}
+	if got.Segments[len(got.Segments)-1].End().Before(now.Add(time.Hour)) {
+		t.Fatal("schedule stops short of the horizon")
+	}
+}
+
+func TestExtendBlocksBeyondTheHorizonIsIgnored(t *testing.T) {
+	now := time.Date(2026, 11, 7, 12, 0, 0, 0, time.UTC)
+	got := ExtendBlocks(nil, "world", []Block{
+		{From: now, Segments: []Segment{seg("day", 60)}},
+		{From: now.Add(5 * time.Hour), Segments: []Segment{seg("eve", 60)}},
+	}, now, time.Hour)
+	for _, s := range got.Segments {
+		if s.ID == "eve" {
+			t.Fatal("a block after the horizon should not air")
+		}
 	}
 }
