@@ -5,7 +5,9 @@ import { configs, plugins } from 'eslint-config-airbnb-extended';
 
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**', 'src/generated/**', 'src/scenes/data.ts'],
+    ignores: [
+      'dist/**', 'dist-demo/**', 'node_modules/**', 'src/generated/**', 'src/scenes/data.ts',
+    ],
   },
   plugins.stylistic,
   plugins.importX,

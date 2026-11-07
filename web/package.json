@@ -10,7 +10,8 @@
     "test": "vitest run",
     "lint": "eslint .",
     "format": "eslint . --fix",
-    "gen:types": "json2ts -i ../schema/rundown.schema.json -o src/generated/rundown.ts --bannerComment \"// Generated from schema/rundown.schema.json by 'pnpm gen:types'. Do not edit.\""
+    "gen:types": "json2ts -i ../schema/rundown.schema.json -o src/generated/rundown.ts --bannerComment \"// Generated from schema/rundown.schema.json by 'pnpm gen:types'. Do not edit.\"",
+    "build:demo": "VITE_DEMO=1 vite build --base ./ --outDir dist-demo"
   },
   "dependencies": {
     "preact": "^11.2.0"

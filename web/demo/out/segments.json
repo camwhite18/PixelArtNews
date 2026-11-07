@@ -1,0 +1,114 @@
+{
+  "world-headlines": {
+    "durationS": 17.497,
+    "lineStarts": [
+      0.0,
+      4.098,
+      11.524
+    ]
+  },
+  "world-story": {
+    "durationS": 16.857,
+    "lineStarts": [
+      0.0,
+      6.125,
+      12.996
+    ]
+  },
+  "world-link": {
+    "durationS": 7.213,
+    "lineStarts": [
+      0.0,
+      4.973
+    ]
+  },
+  "tech-headlines": {
+    "durationS": 12.78,
+    "lineStarts": [
+      0.0,
+      5.783
+    ]
+  },
+  "tech-story": {
+    "durationS": 18.243,
+    "lineStarts": [
+      0.0,
+      4.844,
+      13.08
+    ]
+  },
+  "tech-link": {
+    "durationS": 4.651,
+    "lineStarts": [
+      0.0
+    ]
+  },
+  "science-headlines": {
+    "durationS": 11.564,
+    "lineStarts": [
+      0.0,
+      4.225
+    ]
+  },
+  "science-story": {
+    "durationS": 17.325,
+    "lineStarts": [
+      0.0,
+      6.252,
+      12.952
+    ]
+  },
+  "science-link": {
+    "durationS": 5.099,
+    "lineStarts": [
+      0.0
+    ]
+  },
+  "sport-headlines": {
+    "durationS": 16.601,
+    "lineStarts": [
+      0.0,
+      5.677,
+      12.975
+    ]
+  },
+  "sport-story": {
+    "durationS": 17.519,
+    "lineStarts": [
+      0.0,
+      5.698,
+      13.849
+    ]
+  },
+  "sport-link": {
+    "durationS": 5.741,
+    "lineStarts": [
+      0.0,
+      4.205
+    ]
+  },
+  "weird-headlines": {
+    "durationS": 14.34,
+    "lineStarts": [
+      0.0,
+      3.671,
+      9.199
+    ]
+  },
+  "weird-story": {
+    "durationS": 15.131,
+    "lineStarts": [
+      0.0,
+      6.359,
+      10.457,
+      12.571
+    ]
+  },
+  "weird-link": {
+    "durationS": 7.81,
+    "lineStarts": [
+      0.0,
+      5.421
+    ]
+  }
+}

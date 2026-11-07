@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { type Channel, serverNow } from '../api';
 import { Studio } from '../components/Studio';
-import { navigate } from '../router';
+import { href, navigate } from '../router';
 import {
   clockTime, onAir, segmentLabel, startMs, upNext,
 } from '../rundown';
@@ -30,15 +30,14 @@ function ChannelCard({ channel, index, now }: { channel: Channel; index: number;
   return (
     <a
       className="card"
-      href={`/ch/${channel.id}`}
+      href={href(`/ch/${channel.id}`)}
       onClick={open}
       style={{ '--accent': channel.accent }}
     >
       <div className="card-head">
         <h2>{channel.name}</h2>
         <span className="muted pixel-sm">
-          CH
-          {index + 1}
+          {`CH ${index + 1}`}
         </span>
       </div>
       <div className="card-frame">
@@ -71,12 +70,7 @@ function ChannelCard({ channel, index, now }: { channel: Channel; index: number;
         ) : (
           <div className="muted">Off air — first broadcast coming up</div>
         )}
-        {hosts && (
-        <div className="muted">
-          with
-          {hosts}
-        </div>
-        )}
+        {hosts && <div className="muted">{`with ${hosts}`}</div>}
         {next && (
           <div className="muted">
             Next
