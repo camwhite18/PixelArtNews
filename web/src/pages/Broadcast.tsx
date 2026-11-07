@@ -4,6 +4,7 @@ import {
 import { type Channel, serverNow } from '../api';
 import { PixelIcon } from '../components/PixelIcon';
 import { Studio } from '../components/Studio';
+import { shotFor } from '../scenes/camera';
 import {
   looksOf, namesOf, showOf, teamOnSet,
 } from '../team';
@@ -15,6 +16,24 @@ import {
 import { useRundown } from '../useRundown';
 
 const DEFAULT_TICKER = 'Pixel Art News · 24/7 AI news channels';
+const CAPTIONS_KEY = 'pxn.captions';
+
+/** Whether this viewer last left subtitles on; storage may be unavailable. */
+function captionsWereOn(): boolean {
+  try {
+    return localStorage.getItem(CAPTIONS_KEY) === 'on';
+  } catch {
+    return false;
+  }
+}
+
+function rememberCaptions(on: boolean) {
+  try {
+    localStorage.setItem(CAPTIONS_KEY, on ? 'on' : 'off');
+  } catch {
+    // Not remembered; subtitles still toggle for this visit.
+  }
+}
 
 interface Props {
   channels: Channel[];
@@ -30,7 +49,10 @@ export function Broadcast({
   const index = channels.findIndex((c) => c.id === channelId);
   const channel = channels[index] ?? null;
   const rundown = useRundown(channelId);
-  const [np, setNp] = useState<NowPlaying>({ segment: null, speaker: null, blocked: false });
+  const [np, setNp] = useState<NowPlaying>({
+    segment: null, line: null, speaker: null, blocked: false,
+  });
+  const [captions, setCaptions] = useState(captionsWereOn);
   const [showSources, setShowSources] = useState(false);
   const [staticUntil, setStaticUntil] = useState(0);
   const [now, setNow] = useState(serverNow());
@@ -50,6 +72,11 @@ export function Broadcast({
 
   useEffect(() => player.setRundown(rundown), [player, rundown]);
 
+  const toggleCaptions = () => {
+    rememberCaptions(!captions);
+    setCaptions(!captions);
+  };
+
   const zap = (dir: 1 | -1) => {
     if (channels.length === 0) return;
     const next = channels[(Math.max(index, 0) + dir + channels.length) % channels.length];
@@ -63,6 +90,7 @@ export function Broadcast({
       if (e.key === 'ArrowUp' || e.key === 'PageUp') zap(-1);
       else if (e.key === 'ArrowDown' || e.key === 'PageDown') zap(1);
       else if (e.key === 'Escape') navigate('/');
+      else if (e.key === 'c' || e.key === 'C') toggleCaptions();
       else return;
       e.preventDefault();
     };
@@ -87,6 +115,12 @@ export function Broadcast({
   const team = teamOnSet(channel, seg, now);
   const talking = seg ? team.findIndex((p) => p.id === np.speaker) : null;
   const hosts = namesOf(team);
+  const seat = talking === null || talking < 0 ? null : talking;
+  const line = seg && np.line !== null ? seg.lines[np.line] : null;
+  // First name, skipping titles: "Prof. Ada Quark" is "Ada".
+  const speakerName = channel.presenters
+    .find((p) => p.id === line?.speaker)?.name.split(' ')
+    .find((w) => !/^(Prof|Dr)\.?$/.test(w)) ?? '';
 
   return (
     <main
@@ -107,8 +141,9 @@ export function Broadcast({
           scene={seg ? channel.scene : null}
           show={showOf(seg, now)}
           team={looksOf(team)}
-          talking={talking === null || talking < 0 ? null : talking}
+          talking={seat}
           level={() => player.level()}
+          shot={shotFor(np.line, seat)}
           staticUntil={staticUntil}
           label={`${channel.name} studio`}
         />
@@ -143,6 +178,13 @@ export function Broadcast({
 
         {seg ? (
           <div className="lower-third">
+            {captions && line && (
+              <p className="captions">
+                {speakerName && <span className="caption-who">{`${speakerName}:`}</span>}
+                {' '}
+                {line.text}
+              </p>
+            )}
             <div className="lt-tabs">
               <span className="kicker">{seg.kicker || segmentLabel(seg).toUpperCase()}</span>
               <span className="hosts">{hosts}</span>
@@ -156,6 +198,16 @@ export function Broadcast({
         )}
 
         <div className="controls">
+          <button
+            type="button"
+            className="ctl"
+            aria-pressed={captions}
+            aria-label="Subtitles"
+            title="Subtitles (C)"
+            onClick={toggleCaptions}
+          >
+            CC
+          </button>
           <a
             className="ctl"
             href={href('/')}

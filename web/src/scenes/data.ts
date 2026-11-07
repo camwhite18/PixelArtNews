@@ -13,7 +13,10 @@
 //   (Press Start 2P).
 // Seats: where presenters sit: the head's left edge for a solo host (`one`)
 // and for a pair (`two`), in seat order.
+// prop: the left edge of a clear spot on the desk for a small seasonal prop.
+// clocks: wall clocks that show the real time in a city (clocks.ts).
 
+import type { Clock } from './clocks';
 import { f1Scene } from './f1';
 import { footballScene } from './football';
 
@@ -28,6 +31,8 @@ export interface SceneData {
   front: Rect[];
   texts: Text[];
   seats: Seats;
+  prop: number;
+  clocks?: Clock[];
 }
 
 const world: SceneData = {
@@ -65,14 +70,8 @@ const world: SceneData = {
     [150,33,4,4,"#ffd166","blink2"],
     [46,34,4,4,"#ff4d5e","blink"],
     [248,36,20,20,"#f4f1e6"],
-    [257,40,2,7,"#0b0b14"],
-    [257,45,7,2,"#0b0b14"],
     [248,60,20,20,"#f4f1e6"],
-    [257,69,2,7,"#0b0b14"],
-    [251,69,7,2,"#0b0b14"],
     [248,84,20,20,"#f4f1e6"],
-    [257,86,2,7,"#0b0b14"],
-    [257,93,6,2,"#0b0b14"],
   ],
   front: [
     [40,118,240,62,"#1a1828"],
@@ -89,6 +88,12 @@ const world: SceneData = {
     [271,97,8,"#4aa3ff","TYO"],
   ],
   seats: { one: 136, two: [88, 184] },
+  prop: 236,
+  clocks: [
+    { x: 258, y: 46, zone: 'Europe/London' },
+    { x: 258, y: 70, zone: 'America/New_York' },
+    { x: 258, y: 94, zone: 'Asia/Tokyo' },
+  ],
 };
 
 const tech: SceneData = {
@@ -202,6 +207,7 @@ const tech: SceneData = {
 
   ],
   seats: { one: 120, two: [118, 182] },
+  prop: 226,
 };
 
 const science: SceneData = {
@@ -280,6 +286,7 @@ const science: SceneData = {
 
   ],
   seats: { one: 134, two: [104, 164] },
+  prop: 72,
 };
 
 const sport: SceneData = {
@@ -367,6 +374,7 @@ const sport: SceneData = {
     [160,26,8,"#ffb03b","2-1","middle","display"],
   ],
   seats: { one: 137, two: [88, 186] },
+  prop: 248,
 };
 
 const weird: SceneData = {
@@ -439,6 +447,7 @@ const weird: SceneData = {
     [58,46,16,"#ff6fcf","?!","left","display"],
   ],
   seats: { one: 145, two: [100, 190] },
+  prop: 234,
 };
 
 export const SCENES: Record<string, SceneData> = {

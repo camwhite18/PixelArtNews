@@ -24,11 +24,15 @@ export function upNext(r: Rundown | null, now: number): Segment | null {
 }
 
 /** The line being spoken `offsetS` seconds into a segment. */
-export function lineAt(s: Segment, offsetS: number): Line | null {
+/** Index of the line being spoken `offsetS` into a segment, or -1 before the first. */
+export function lineIndexAt(s: Segment, offsetS: number): number {
   // Lines are in speaking order; the current one is the last to have started.
   const firstUnstarted = s.lines.findIndex((l) => (l.startS ?? 0) > offsetS);
-  const started = firstUnstarted === -1 ? s.lines.length : firstUnstarted;
-  return started > 0 ? s.lines[started - 1] : null;
+  return (firstUnstarted === -1 ? s.lines.length : firstUnstarted) - 1;
+}
+
+export function lineAt(s: Segment, offsetS: number): Line | null {
+  return s.lines[lineIndexAt(s, offsetS)] ?? null;
 }
 
 /** True when the schedule ends within `withinMs`, so it is worth refetching. */

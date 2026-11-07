@@ -4,6 +4,11 @@ import {
 import {
   facingFor, handRects, type Look, presenterRects, seatsFor,
 } from './presenters';
+import {
+  closeUpOrigin, type Shot, WIDE, ZOOM,
+} from './camera';
+import { clocksAt } from './clocks';
+import { poppy, type Season, seasonAt } from './seasons';
 import { type Show, showFor } from './shows';
 
 export const WIDTH = 320;
@@ -122,16 +127,24 @@ function drawTexts(ctx: CanvasRenderingContext2D, texts: Text[]) {
 
 const isLight = ([, , , , , fx]: Rect) => fx === 'blink' || fx === 'blink2';
 
+export interface Extras {
+  season?: Season | null;
+  /** Wall-clock time, for the studio clocks. */
+  date?: Date;
+}
+
 /**
  * Every rect of a studio dressed for a show with this team at the desk, in
- * draw order: under the set, set, tint, the set's lights, the show's
- * backdrop, presenters, desk, hands.
+ * draw order: under the set, set (with clock hands), tint, the set's lights,
+ * the show's backdrop, seasonal dressing, presenters, desk (with any
+ * seasonal prop), hands.
  */
 export function sceneLayers(
   scene: SceneData,
   team: Look[],
   f: FrameState,
   show: Show = {},
+  { season, date }: Extras = {},
 ): Rect[][] {
   const seated = team.slice(0, 2);
   const xs = seatsFor(scene.seats, seated.length);
@@ -141,14 +154,35 @@ export function sceneLayers(
     facingFor(seat, seated.length),
     f.talking === seat && f.mouthOpen,
   ));
+  if (season?.poppy) {
+    seated.forEach((look, seat) => {
+      if (!look.alien) bodies.push(...poppy(xs[seat]));
+    });
+  }
   const hands = seated.flatMap((look, seat) => handRects(xs[seat], look));
   const tint: Rect[] = show.tint
     ? [[0, 0, WIDTH, HEIGHT, show.tint[0], undefined, show.tint[1]]]
     : [];
   const lights = show.tint ? scene.back.filter(isLight) : [];
+  const back = scene.clocks && date ? [...scene.back, ...clocksAt(scene.clocks, date)] : scene.back;
+  const front = season?.prop ? [...scene.front, ...season.prop(scene.prop)] : scene.front;
   return [
-    show.under ?? [], scene.back, tint, lights, show.back ?? [], bodies, scene.front, hands,
+    show.under ?? [], back, tint, lights, show.back ?? [], season?.back ?? [],
+    bodies, front, hands,
   ];
+}
+
+let seasonDay = '';
+let season: Season | null = null;
+
+/** Today's season, worked out once a day rather than every frame. */
+function todaysSeason(date: Date): Season | null {
+  const day = date.toDateString();
+  if (day !== seasonDay) {
+    seasonDay = day;
+    season = seasonAt(date);
+  }
+  return season;
 }
 
 function drawScene(
@@ -157,11 +191,21 @@ function drawScene(
   team: Look[],
   f: FrameState,
   show: Show,
+  shot: Shot,
 ) {
   ctx.fillStyle = scene.bg;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
-  sceneLayers(scene, team, f, show).forEach((layer) => drawRects(ctx, layer, f));
+  const seats = seatsFor(scene.seats, Math.min(team.length, 2));
+  const head = shot.kind === 'close' ? seats[shot.seat] : undefined;
+  if (head !== undefined) {
+    const [ox, oy] = closeUpOrigin(head);
+    ctx.setTransform(ZOOM, 0, 0, ZOOM, -ox * ZOOM, -oy * ZOOM);
+  }
+  const date = new Date();
+  sceneLayers(scene, team, f, show, { season: todaysSeason(date), date })
+    .forEach((layer) => drawRects(ctx, layer, f));
   drawTexts(ctx, show.texts ?? scene.texts);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
 }
 
 function drawStatic(ctx: CanvasRenderingContext2D) {
@@ -203,13 +247,14 @@ export function drawFrame(
   team: Look[],
   f: FrameState,
   showId?: string | null,
+  shot: Shot = WIDE,
 ) {
   ctx.imageSmoothingEnabled = false;
   const scene = sceneId ? SCENES[sceneId] : undefined;
   if (f.static) {
     drawStatic(ctx);
   } else if (scene) {
-    drawScene(ctx, scene, team, f, showFor(sceneId ?? '', showId));
+    drawScene(ctx, scene, team, f, showFor(sceneId ?? '', showId), shot);
   } else {
     drawTestCard(ctx, f);
   }

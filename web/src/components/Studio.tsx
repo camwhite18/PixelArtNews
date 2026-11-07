@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'preact/hooks';
+import type { Shot } from '../scenes/camera';
 import type { Look } from '../scenes/presenters';
 import {
   drawFrame, HEIGHT, idleTalk, WIDTH,
@@ -14,6 +15,8 @@ interface Props {
   talking?: number | null;
   /** Live loudness 0..1; when given, mouths follow the audio. */
   level?: () => number;
+  /** Camera shot: wide (the default) or a close-up of one seat. */
+  shot?: Shot;
   /** performance.now() time until which to show TV static. */
   staticUntil?: number;
   label: string;
@@ -21,16 +24,16 @@ interface Props {
 
 /** A channel's pixel studio, drawn at 320x180 and scaled up with crisp pixels. */
 export function Studio({
-  scene, show, team, talking, level, staticUntil = 0, label,
+  scene, show, team, talking, level, shot, staticUntil = 0, label,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const propsRef = useRef({
-    scene, show, team, talking, level, staticUntil,
+    scene, show, team, talking, level, shot, staticUntil,
   });
   // The animation loop reads the latest props without restarting.
   useEffect(() => {
     propsRef.current = {
-      scene, show, team, talking, level, staticUntil,
+      scene, show, team, talking, level, shot, staticUntil,
     };
   });
 
@@ -51,7 +54,14 @@ export function Studio({
         }
         state = { talking: p.talking, mouthOpen: p.talking !== null && mouthOpen };
       }
-      drawFrame(ctx, p.scene, p.team, { time, ...state, static: time < p.staticUntil }, p.show);
+      drawFrame(
+        ctx,
+        p.scene,
+        p.team,
+        { time, ...state, static: time < p.staticUntil },
+        p.show,
+        p.shot,
+      );
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);

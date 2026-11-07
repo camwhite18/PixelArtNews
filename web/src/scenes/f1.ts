@@ -106,6 +106,7 @@ export const f1Scene: SceneData = {
   ],
   texts: [[14, 33, 8, PAPER, 'LAP 42']],
   seats: { one: 138, two: [92, 180] },
+  prop: 248,
 };
 
 // ---------- Shows ----------

@@ -1,10 +1,12 @@
 import { mediaUrl, serverNow } from './api';
 import {
-  endMs, lineAt, onAir, type Rundown, type Segment, upNext,
+  endMs, lineIndexAt, onAir, type Rundown, type Segment, upNext,
 } from './rundown';
 
 export interface NowPlaying {
   segment: Segment | null;
+  /** Index into the segment's lines of the one being spoken, if any. */
+  line: number | null;
   speaker: string | null;
   /** Audio should be playing but the browser is holding it until a click. */
   blocked: boolean;
@@ -104,7 +106,9 @@ export class Player {
     if (!air) {
       if (this.currentId !== null) this.audio.pause();
       this.currentId = null;
-      this.onChange({ segment: null, speaker: null, blocked: false });
+      this.onChange({
+        segment: null, line: null, speaker: null, blocked: false,
+      });
       return;
     }
     const { segment, offsetS } = air;
@@ -117,9 +121,11 @@ export class Player {
       this.audio.currentTime = offsetS; // drifted (tab was asleep, network stall)
     }
     this.prefetchNext(now);
+    const line = lineIndexAt(segment, offsetS);
     this.onChange({
       segment,
-      speaker: lineAt(segment, offsetS)?.speaker ?? null,
+      line: line >= 0 ? line : null,
+      speaker: segment.lines[line]?.speaker ?? null,
       blocked: this.rejected && this.audio.paused,
     });
   }

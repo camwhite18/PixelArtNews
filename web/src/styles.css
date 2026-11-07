@@ -490,6 +490,28 @@ a {
   }
 }
 
+/* Subtitles sit just above the lower third: below the presenters' faces
+   in both wide shots and close-ups. */
+.captions {
+  max-width: calc(200 * var(--px));
+  margin: 0 0 calc(3 * var(--px));
+  background: rgb(11 11 20 / 88%);
+  font-size: var(--type-read);
+  line-height: 1.125;
+  padding: 0.25em 0.5em 0.375em;
+}
+
+.caption-who {
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.ctl[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
 /* Scanlines, one per studio pixel row. Only on big screens, where each row
    is several screen pixels tall; on small ones they'd shimmer. */
 .scanlines {
