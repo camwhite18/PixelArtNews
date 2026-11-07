@@ -1,0 +1,26 @@
+# Secrets
+.env
+*.env.local
+
+# Go
+/server/bin/
+*.test
+*.out
+
+# Node
+node_modules/
+/web/dist/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Runtime data
+/data/
+/media/
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
