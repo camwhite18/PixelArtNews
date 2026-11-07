@@ -1,0 +1,27 @@
+{
+  "name": "pixelartnews-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "format": "eslint . --fix",
+    "gen:types": "json2ts -i ../schema/rundown.schema.json -o src/generated/rundown.ts --bannerComment \"// Generated from schema/rundown.schema.json by 'pnpm gen:types'. Do not edit.\""
+  },
+  "dependencies": {
+    "preact": "^11.2.0"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
+    "eslint": "^9.39.5",
+    "eslint-config-airbnb-extended": "^3.3.0",
+    "json-schema-to-typescript": "^16.0.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.6",
+    "vitest": "^5.1.0"
+  }
+}
