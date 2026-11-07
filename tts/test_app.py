@@ -28,8 +28,10 @@ def test_synthesize_returns_mp3_duration_and_line_starts(monkeypatch):
         })
     assert r.status_code == 200, r.text
     body = r.json()
-    assert body["duration_s"] == 2.5
-    assert body["line_starts"] == [0.0, 1.5]
+    # 1 s per line plus a handover pause of about 1.7 x 500 ms.
+    assert 2.6 < body["duration_s"] < 2.95
+    assert body["line_starts"][0] == 0.0
+    assert 1.6 < body["line_starts"][1] < 1.95
     assert base64.b64decode(body["audio_b64"])[:3] in (b"ID3", b"\xff\xfb", b"\xff\xf3")
 
 
