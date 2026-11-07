@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pixelartnews/schema/rundown.schema.json",
+  "title": "Rundown",
+  "description": "A channel's broadcast schedule. Segments carry absolute UTC start times so every viewer hears the same moment.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["channel", "generatedAt", "segments"],
+  "properties": {
+    "channel": { "type": "string", "description": "Channel id, e.g. \"world\"." },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "segments": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/segment" }
+    }
+  },
+  "$defs": {
+    "segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "start", "durationS", "audio", "lines", "sources"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["headlines", "story", "link", "recap", "breaking", "advert", "idle"]
+        },
+        "start": { "type": "string", "format": "date-time", "description": "Absolute UTC start time." },
+        "durationS": { "type": "number", "minimum": 0, "description": "Measured from the encoded audio, not estimated." },
+        "audio": { "type": "string", "description": "Path under /media, e.g. \"audio/world/seg_8f2a.mp3\"." },
+        "kicker": { "type": "string", "description": "Lower-third tab, e.g. \"TOP STORY\"." },
+        "headline": { "type": "string" },
+        "ticker": { "type": "string" },
+        "lines": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/line" }
+        },
+        "sources": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/source" }
+        }
+      }
+    },
+    "line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["speaker", "text", "sourceIds"],
+      "properties": {
+        "speaker": { "type": "string", "description": "Presenter id; two-presenter channels alternate." },
+        "text": { "type": "string" },
+        "startS": { "type": "number", "minimum": 0, "description": "Offset of this line within the segment audio." },
+        "sourceIds": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Every line must cite at least one supplied source, except links and idle segments."
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "outlet", "url"],
+      "properties": {
+        "id": { "type": "string" },
+        "outlet": { "type": "string" },
+        "url": { "type": "string", "format": "uri" }
+      }
+    }
+  }
+}

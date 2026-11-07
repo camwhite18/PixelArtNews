@@ -1,0 +1,70 @@
+name: pixelartnews
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pixelnews
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: pixelnews
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pixelnews -d pixelnews"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  tts:
+    build: ./tts
+    restart: unless-stopped
+    volumes:
+      - tts-cache:/cache
+    # Kokoro runs on the CPU. Leave headroom for Jellyfin and the host.
+    cpus: ${TTS_CPUS:-3}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 120s
+
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://pixelnews:${POSTGRES_PASSWORD}@postgres:5432/pixelnews?sslmode=disable
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL:-}
+      MODEL_MAIN: ${MODEL_MAIN:-claude-sonnet-5-5}
+      MODEL_FAST: ${MODEL_FAST:-claude-haiku-5-5}
+      TTS_URL: http://tts:8000
+      PIPELINE_INTERVAL: ${PIPELINE_INTERVAL:-1h}
+      SCHEDULE_HORIZON: ${SCHEDULE_HORIZON:-3h}
+    volumes:
+      - media:/data/media
+    # Reachable on the server itself for testing; the public route is the tunnel.
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      tts:
+        condition: service_healthy
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:?set CLOUDFLARE_TUNNEL_TOKEN in .env}
+    depends_on:
+      - server
+
+volumes:
+  pgdata:
+  media:
+  tts-cache:
