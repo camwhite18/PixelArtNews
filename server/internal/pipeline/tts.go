@@ -15,6 +15,8 @@ import (
 type TTSLine struct {
 	Text  string `json:"text"`
 	Voice string `json:"voice"`
+	// Speed is the presenter's pace (1 = Kokoro's default); 0 means default.
+	Speed float64 `json:"speed,omitempty"`
 }
 
 // TTSResult is one encoded segment.
@@ -37,7 +39,7 @@ func NewTTSClient(base string) *TTSClient {
 // Synthesize voices the lines in order (switching voices per presenter) and
 // returns one MP3 with the start offset of each line.
 func (c *TTSClient) Synthesize(ctx context.Context, lines []TTSLine) (TTSResult, error) {
-	body, err := json.Marshal(map[string]any{"lines": lines, "gap_ms": 250})
+	body, err := json.Marshal(map[string]any{"lines": lines, "gap_ms": 300})
 	if err != nil {
 		return TTSResult{}, err
 	}

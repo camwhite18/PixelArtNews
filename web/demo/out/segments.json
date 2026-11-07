@@ -1,114 +1,114 @@
 {
   "world-headlines": {
-    "durationS": 17.497,
+    "durationS": 17.233,
     "lineStarts": [
       0.0,
-      4.098,
-      11.524
+      4.048,
+      11.297
     ]
   },
   "world-story": {
-    "durationS": 16.857,
+    "durationS": 16.824,
     "lineStarts": [
       0.0,
-      6.125,
-      12.996
+      6.102,
+      12.991
     ]
   },
   "world-link": {
-    "durationS": 7.213,
+    "durationS": 7.247,
     "lineStarts": [
       0.0,
-      4.973
+      5.038
     ]
   },
   "tech-headlines": {
-    "durationS": 12.78,
+    "durationS": 12.769,
     "lineStarts": [
       0.0,
-      5.783
+      5.806
     ]
   },
   "tech-story": {
-    "durationS": 18.243,
+    "durationS": 18.199,
     "lineStarts": [
       0.0,
-      4.844,
-      13.08
+      4.813,
+      13.049
     ]
   },
   "tech-link": {
-    "durationS": 4.651,
+    "durationS": 4.622,
     "lineStarts": [
       0.0
     ]
   },
   "science-headlines": {
-    "durationS": 11.564,
+    "durationS": 11.561,
     "lineStarts": [
       0.0,
-      4.225
+      4.256
     ]
   },
   "science-story": {
-    "durationS": 17.325,
+    "durationS": 17.306,
     "lineStarts": [
       0.0,
-      6.252,
-      12.952
+      6.254,
+      12.968
     ]
   },
   "science-link": {
-    "durationS": 5.099,
+    "durationS": 5.068,
     "lineStarts": [
       0.0
     ]
   },
   "sport-headlines": {
-    "durationS": 16.601,
+    "durationS": 16.495,
     "lineStarts": [
       0.0,
-      5.677,
-      12.975
+      5.617,
+      12.915
     ]
   },
   "sport-story": {
-    "durationS": 17.519,
+    "durationS": 17.488,
     "lineStarts": [
       0.0,
-      5.698,
-      13.849
+      5.803,
+      13.887
     ]
   },
   "sport-link": {
-    "durationS": 5.741,
+    "durationS": 5.664,
     "lineStarts": [
       0.0,
-      4.205
+      4.181
     ]
   },
   "weird-headlines": {
-    "durationS": 14.34,
+    "durationS": 13.467,
     "lineStarts": [
       0.0,
-      3.671,
-      9.199
+      3.408,
+      8.745
     ]
   },
   "weird-story": {
-    "durationS": 15.131,
+    "durationS": 14.426,
     "lineStarts": [
       0.0,
-      6.359,
-      10.457,
-      12.571
+      6.098,
+      10.014,
+      12.124
     ]
   },
   "weird-link": {
-    "durationS": 7.81,
+    "durationS": 7.266,
     "lineStarts": [
       0.0,
-      5.421
+      5.138
     ]
   }
 }

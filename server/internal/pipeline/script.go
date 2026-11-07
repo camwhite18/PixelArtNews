@@ -20,7 +20,9 @@ Rules:
 - Paraphrase. Never copy sentences from the sources, and write every headline, kicker and ticker line in your own words, never a source's headline.
 - Don't put your wording in an outlet's mouth ("according to NASA", "the BBC says"). The on-screen source links credit the outlets.
 - Every line that states a fact must cite the ids of the sources it relies on in sourceIds.
-- Write for the ear: short sentences, one idea per line, at most two sentences per line, no lists, no URLs, no emoji.
+- Write for the ear, the way presenters actually talk: contractions ("it's", "they've"), a mix of short and longer sentences, one idea per line, at most two sentences per line. Natural connectives are fine ("Now,", "Right,", "Well,"), but sparingly.
+- Make two-presenter segments sound like a conversation: short reactions ("Really?", "That's a lot.") and questions to each other, not alternating monologues.
+- Write everything as it should be spoken: "per cent", "about two thousand", "the twenty-third of March". No lists, brackets, abbreviations a newsreader wouldn't say aloud, URLs or emoji.
 - British English.
 - Stay in character, but drop the jokes and switch to a calm, respectful tone for deaths, disasters, violence, illness or anything tragic.
 - On WEIRD NEWS, leave out any story about death, injury, illness, crime victims or a private person being laughed at, however odd it is. Cover only light, harmless oddities.

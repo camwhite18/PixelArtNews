@@ -1,39 +1,37 @@
 """Generate the demo broadcasts' audio with Kokoro (via kokoro-onnx).
 
 Reads demo/script.json and writes, under demo/out/:
-  audio/<segment id>.mp3   one file per segment, lines joined with short pauses
+  audio/<segment id>.mp3   one file per segment
   segments.json            each segment's duration and per-line start offsets
 
-Needs: pip install kokoro-onnx soundfile, ffmpeg on PATH, and the model files
+Uses the TTS service's own audio helpers (tts/audio.py), so the demo sounds
+like the real channels: natural pauses, room tone and the broadcast chain.
+
+Needs: pip install kokoro-onnx numpy, ffmpeg on PATH, and the model files
 from https://github.com/thewh1teagle/kokoro-onnx/releases (model-files-v1.0):
   python demo/generate.py --model kokoro-v1.0.int8.onnx --voices voices-v1.0.bin
 """
 
 import argparse
 import json
-import subprocess
+import sys
 import time
+import zlib
 from pathlib import Path
 
 import numpy as np
 from kokoro_onnx import Kokoro
 
-GAP_S = 0.3  # pause between lines; a touch longer when the speaker changes
-HANDOVER_S = 0.45
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent.parent / "tts"))
+from audio import add_room_tone, assemble, encode_mp3, plan_pauses, trim_silence  # noqa: E402
+
+BASE_PAUSE_S = 0.3  # matches the server's gap_ms
 
 
 def lang_for(voice: str) -> str:
     # Kokoro voice ids start with a for American English, b for British.
     return "en-gb" if voice.startswith("b") else "en-us"
-
-
-def encode_mp3(samples: np.ndarray, rate: int, path: Path) -> None:
-    pcm = (np.clip(samples, -1, 1) * 32767).astype("<i2").tobytes()
-    subprocess.run(
-        ["ffmpeg", "-loglevel", "error", "-y", "-f", "s16le", "-ar", str(rate), "-ac", "1",
-         "-i", "-", "-codec:a", "libmp3lame", "-b:a", "64k", str(path)],
-        input=pcm, check=True,
-    )
 
 
 def main() -> None:
@@ -42,9 +40,13 @@ def main() -> None:
     ap.add_argument("--voices", required=True)
     args = ap.parse_args()
 
-    here = Path(__file__).parent
-    script = json.loads((here / "script.json").read_text())
-    out = here / "out"
+    script = json.loads((HERE / "script.json").read_text())
+    # {"margot": {"voice": "bf_emma", "speed": 0.95}, ...}; older scripts have
+    # a plain {"margot": "bf_emma"} voices map.
+    presenters = script.get("presenters") or {
+        name: {"voice": voice} for name, voice in script["voices"].items()
+    }
+    out = HERE / "out"
     (out / "audio").mkdir(parents=True, exist_ok=True)
 
     kokoro = Kokoro(args.model, args.voices)
@@ -54,26 +56,20 @@ def main() -> None:
 
     for channel in script["channels"]:
         for seg in channel["segments"]:
-            chunks: list[np.ndarray] = []
-            starts: list[float] = []
-            t = 0.0
-            prev = None
-            rate = 24000
+            chunks, voices, texts = [], [], []
             for speaker, text in seg["lines"]:
-                voice = script["voices"][speaker]
-                if prev is not None:
-                    gap = HANDOVER_S if speaker != prev else GAP_S
-                    chunks.append(np.zeros(int(gap * rate), dtype=np.float32))
-                    t += gap
-                samples, rate = kokoro.create(text, voice=voice, speed=1.0, lang=lang_for(voice))
-                starts.append(round(t, 3))
-                chunks.append(samples.astype(np.float32))
-                t += len(samples) / rate
-                prev = speaker
-            audio = np.concatenate(chunks)
-            duration = len(audio) / rate
+                p = presenters[speaker]
+                samples, _ = kokoro.create(
+                    text, voice=p["voice"], speed=p.get("speed", 1.0), lang=lang_for(p["voice"]),
+                )
+                chunks.append(trim_silence(samples))
+                voices.append(p["voice"])
+                texts.append(text)
+            audio, starts = assemble(chunks, plan_pauses(voices, texts, BASE_PAUSE_S))
+            audio = add_room_tone(audio, seed=zlib.crc32("\n".join(texts).encode("utf-8")))
+            (out / "audio" / f"{seg['id']}.mp3").write_bytes(encode_mp3(audio))
+            duration = len(audio) / 24_000
             spoken_s += duration
-            encode_mp3(audio, rate, out / "audio" / f"{seg['id']}.mp3")
             result[seg["id"]] = {"durationS": round(duration, 3), "lineStarts": starts}
             print(f"{seg['id']}: {duration:.1f}s")
 
