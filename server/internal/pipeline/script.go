@@ -110,7 +110,7 @@ func personaPrompt(ch store.Channel) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "Channel: %s.\nPresenters (use these ids as speaker):\n", ch.Name)
 	for _, p := range ch.Presenters {
-		fmt.Fprintf(&b, "- %s (%s): %s\n", p.ID, p.Name, p.Persona)
+		fmt.Fprintf(&b, "\n## %s (%s)\n%s\n", p.ID, p.Name, strings.TrimSpace(p.Persona))
 	}
 	return b.String()
 }
