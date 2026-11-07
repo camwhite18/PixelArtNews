@@ -1,0 +1,182 @@
+{
+  "_note": "Demo broadcasts for `pnpm build:demo`. Invented sample stories, not real news. Regenerate the audio with demo/generate.py.",
+  "channels": [
+    {
+      "id": "world",
+      "segments": [
+        {
+          "id": "world-headlines", "type": "headlines", "kicker": "WELCOME",
+          "headline": "This is a demo broadcast",
+          "ticker": "DEMO  ·  Sample stories only  ·  Real channels are scripted hourly from live feeds  ·  Switch channels with the arrow keys",
+          "lines": [
+            ["margot", "Good evening, and welcome to Pixel Art News. I'm Margot Lane."],
+            ["kofi", "And I'm Kofi Mensah. Tonight is a little different: this is a demo, so every story you hear is a sample."],
+            ["margot", "When the channels go live, we'll be reading the real news, summarised from trusted outlets and linked on screen."]
+          ]
+        },
+        {
+          "id": "world-story", "type": "story", "kicker": "SAMPLE STORY",
+          "headline": "Sample story: talks run late into the night",
+          "ticker": "DEMO  ·  Sample story  ·  Live stories cite the outlets they come from",
+          "lines": [
+            ["margot", "In our sample story, negotiators at an imaginary summit have agreed to keep talking past midnight."],
+            ["kofi", "And that matters, Margot, because when talks run late it usually means both sides think a deal is close."],
+            ["margot", "We'll bring you any developments, should our imaginary negotiators make any."]
+          ]
+        },
+        {
+          "id": "world-link", "type": "link", "kicker": "COMING UP",
+          "headline": "Coming up on World",
+          "ticker": "DEMO  ·  Coming up: more sample headlines",
+          "lines": [
+            ["kofi", "Coming up after the break: a round-up of the day's other sample headlines."],
+            ["margot", "Stay with us. This is Pixel Art News."]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tech",
+      "segments": [
+        {
+          "id": "tech-headlines", "type": "headlines", "kicker": "WELCOME",
+          "headline": "Tech desk: demo edition",
+          "ticker": "DEMO  ·  Sample stories only  ·  Ray Byte, live from the server room",
+          "lines": [
+            ["ray", "Hey, welcome to the tech desk. I'm Ray Byte, coming to you from inside a very warm server rack."],
+            ["ray", "Quick heads up: this is a demo, so tonight's gadgets are entirely made up. The real ones arrive when the feeds switch on."]
+          ]
+        },
+        {
+          "id": "tech-story", "type": "story", "kicker": "SAMPLE STORY",
+          "headline": "Sample story: a phone battery that lasts a week",
+          "ticker": "DEMO  ·  Sample story  ·  Battery claims, tested later",
+          "lines": [
+            ["ray", "Our sample story: a new chip that promises a phone battery lasting a whole week."],
+            ["ray", "Now, I love a big claim as much as anyone. But week-long battery life usually means very dim screens, or very optimistic testing."],
+            ["ray", "So: interesting, possibly true, and definitely worth waiting for the independent reviews."]
+          ]
+        },
+        {
+          "id": "tech-link", "type": "link", "kicker": "COMING UP",
+          "headline": "Next: Gadget Check",
+          "ticker": "DEMO  ·  Next: Gadget Check",
+          "lines": [
+            ["ray", "Next up, it's Gadget Check, where I plug things in so you don't have to. Don't go anywhere."]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "science",
+      "segments": [
+        {
+          "id": "science-headlines", "type": "headlines", "kicker": "WELCOME",
+          "headline": "Lab Notes: demo edition",
+          "ticker": "DEMO  ·  Sample stories only  ·  Lab Notes with Professor Ada Quark",
+          "lines": [
+            ["ada", "Good evening, and welcome to Lab Notes. I'm Professor Ada Quark."],
+            ["ada", "Tonight's experiments are purely hypothetical, because this is a demo. Real discoveries will follow once our feeds are switched on."]
+          ]
+        },
+        {
+          "id": "science-story", "type": "story", "kicker": "SAMPLE STORY",
+          "headline": "Sample story: water vapour spotted on a distant moon",
+          "ticker": "DEMO  ·  Sample story  ·  Preliminary results, as always",
+          "lines": [
+            ["ada", "In our sample story, a telescope has spotted what looks like water vapour drifting above a distant moon."],
+            ["ada", "Think of it like seeing breath on a cold morning: it doesn't tell you there's a person, but it tells you something is going on."],
+            ["ada", "As always, these results would be preliminary until other teams can check them."]
+          ]
+        },
+        {
+          "id": "science-link", "type": "link", "kicker": "COMING UP",
+          "headline": "Coming up on Science",
+          "ticker": "DEMO  ·  Coming up: more sample science",
+          "lines": [
+            ["ada", "After the break: why your kettle is secretly a lesson in thermodynamics. Do stay tuned."]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sport",
+      "segments": [
+        {
+          "id": "sport-headlines", "type": "headlines", "kicker": "WELCOME",
+          "headline": "The round-up: demo edition",
+          "ticker": "DEMO  ·  Sample results only  ·  Gus and Dee in the studio",
+          "lines": [
+            ["gus", "Evening, everyone. I'm Gus Ginger, and with me as always is Dee Striker."],
+            ["dee", "Evening, Gus! Now, I have to tell everyone: this is a demo, so tonight's results are completely invented."],
+            ["gus", "Which means for once, Dee, your predictions can't be wrong."]
+          ]
+        },
+        {
+          "id": "sport-story", "type": "story", "kicker": "SAMPLE STORY",
+          "headline": "Sample story: late winner sends the underdogs through",
+          "ticker": "DEMO  ·  Sample story  ·  Final score, also imaginary",
+          "lines": [
+            ["gus", "Our sample story: the underdogs have reached the final with a winner in the last minute."],
+            ["dee", "And tactically, Gus, that's all about fresh legs. Bring a striker on late against tired defenders and things open right up."],
+            ["gus", "Fresh legs. I've been saying that about my own for years."]
+          ]
+        },
+        {
+          "id": "sport-link", "type": "link", "kicker": "COMING UP",
+          "headline": "Coming up on Sport",
+          "ticker": "DEMO  ·  Coming up: the results round-up",
+          "lines": [
+            ["dee", "Coming up, the full results round-up, with every sample score."],
+            ["gus", "Don't touch that dial."]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "weird",
+      "segments": [
+        {
+          "id": "weird-headlines", "type": "headlines", "kicker": "WELCOME",
+          "headline": "Weird News: demo edition",
+          "ticker": "DEMO  ·  Sample stories only  ·  Rex Fizz and Zorp, unexplained",
+          "lines": [
+            ["rex", "Welcome, welcome, welcome to Weird News! I'm Rex Fizz!"],
+            ["zorp", "I am Zorp. I have been told this is a demo. On my planet, all news is a demo."],
+            ["rex", "Tonight's stories are samples, folks, but trust me, the real ones are even stranger!"]
+          ]
+        },
+        {
+          "id": "weird-story", "type": "story", "kicker": "ODD SPOT",
+          "headline": "Sample story: town elects a goat as honorary mayor",
+          "ticker": "DEMO  ·  Sample story  ·  The goat has not commented",
+          "lines": [
+            ["rex", "Our sample scoop of the century: a small town has elected a goat as its honorary mayor!"],
+            ["zorp", "I have studied your elections. This seems like an improvement."],
+            ["rex", "Zorp! We do not endorse goats!"],
+            ["zorp", "Noted. I will endorse them privately."]
+          ]
+        },
+        {
+          "id": "weird-link", "type": "link", "kicker": "COMING UP",
+          "headline": "Next: the Odd Spot",
+          "ticker": "DEMO  ·  Next: the Odd Spot",
+          "lines": [
+            ["rex", "Coming up in the Odd Spot: a potato that looks exactly like a famous lighthouse!"],
+            ["zorp", "I have seen it. It is a potato."]
+          ]
+        }
+      ]
+    }
+  ],
+  "voices": {
+    "margot": "bf_emma",
+    "kofi": "am_michael",
+    "ray": "am_adam",
+    "ada": "bf_isabella",
+    "dee": "af_bella",
+    "gus": "bm_george",
+    "rex": "am_puck",
+    "zorp": "am_echo"
+  }
+}

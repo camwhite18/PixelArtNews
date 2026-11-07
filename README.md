@@ -60,6 +60,14 @@ This scaffold was written in a sandbox that couldn't reach the Go checksum datab
 
 ## Development
 
+### Demo build (no server needed)
+
+`cd web && pnpm build:demo` builds the real front end into `web/dist-demo/` with five sample broadcasts bundled in, so it runs from any static host or `python3 -m http.server`. It routes on the URL hash (`#tech`) and loops each channel's sample segments on a clock shared by every viewer, like the live channels.
+
+The sample scripts are in `web/demo/script.json` (invented stories, labelled as samples). Their audio in `web/demo/out/` is generated with Kokoro via [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx); after editing a script, regenerate it with `python web/demo/generate.py --model kokoro-v1.0.int8.onnx --voices voices-v1.0.bin`.
+
+### Running the stack locally
+
 ```sh
 # Postgres with pgvector
 docker compose up -d postgres

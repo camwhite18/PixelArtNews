@@ -4,7 +4,7 @@ import {
 import { type Channel, serverNow } from '../api';
 import { Studio } from '../components/Studio';
 import { type NowPlaying, Player } from '../player';
-import { navigate } from '../router';
+import { href, navigate } from '../router';
 import {
   clockTime, segmentLabel, startMs, upNext,
 } from '../rundown';
@@ -72,7 +72,7 @@ export function Broadcast({
         <p className="error">
           Unknown channel.
           {' '}
-          <a href="/">Back to the guide</a>
+          <a href={href('/')}>Back to the guide</a>
         </p>
       </main>
     );
@@ -152,7 +152,7 @@ export function Broadcast({
         <div className="controls">
           <a
             className="ctl"
-            href="/"
+            href={href('/')}
             onClick={(e) => {
               e.preventDefault();
               navigate('/');
