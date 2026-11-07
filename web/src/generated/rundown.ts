@@ -32,6 +32,10 @@ export interface Segment {
   kicker?: string;
   headline?: string;
   ticker?: string;
+  /**
+   * Ids of the presenters on set for this segment (the shift's team), in seat order.
+   */
+  presenters?: string[];
   lines: Line[];
   sources: Source[];
 }

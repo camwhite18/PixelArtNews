@@ -1,36 +1,65 @@
 {
-  "_note": "Demo broadcasts for `pnpm build:demo`. Invented sample stories, not real news. Regenerate the audio with demo/generate.py.",
+  "_note": "Demo broadcasts for `pnpm build:demo`: one sample segment per shift on each channel, so every team appears. Invented sample stories, not real news. Regenerate the audio with demo/generate.py.",
+  "presenters": {
+    "margot": { "voice": "bf_emma", "speed": 0.96 },
+    "kofi": { "voice": "am_michael" },
+    "tom": { "voice": "bm_fable", "speed": 0.97 },
+    "ray": { "voice": "am_adam", "speed": 1.03 },
+    "nina": { "voice": "af_nicole" },
+    "leo": { "voice": "am_liam" },
+    "ada": { "voice": "bf_isabella" },
+    "mina": { "voice": "af_kore" },
+    "sam": { "voice": "bm_lewis", "speed": 0.96 },
+    "dee": { "voice": "af_bella", "speed": 1.03 },
+    "gus": { "voice": "bm_george" },
+    "jas": { "voice": "af_sarah", "speed": 1.03 },
+    "rex": { "voice": "am_puck", "speed": 1.06 },
+    "zorp": { "voice": "am_echo", "speed": 0.92 },
+    "mags": { "voice": "af_aoede", "speed": 0.97 }
+  },
   "channels": [
     {
       "id": "world",
       "segments": [
         {
-          "id": "world-headlines", "type": "headlines", "kicker": "WELCOME",
-          "headline": "This is a demo broadcast",
-          "ticker": "DEMO  ·  Sample stories only  ·  Real channels are scripted hourly from live feeds  ·  Switch channels with the arrow keys",
+          "id": "world-breakfast", "type": "headlines", "kicker": "BREAKFAST", "presenters": ["kofi", "tom"],
+          "headline": "Breakfast: sample headlines",
+          "ticker": "DEMO  ·  Breakfast with Kofi and Tom  ·  Sample stories only",
           "lines": [
-            ["margot", "Good evening, and welcome to Pixel Art News. I'm Margot Lane."],
-            ["kofi", "And I'm Kofi Mensah. Tonight is a little different: this is a demo, so every story you hear is a sample."],
-            ["margot", "When the channels go live, we'll be reading the real news, summarised from trusted outlets and linked on screen."]
+            ["kofi", "Good morning! It's breakfast on Pixel Art News. I'm Kofi Mensah."],
+            ["tom", "And I'm Tom Hale. Coffee's on, and this morning's stories are all samples, because this is a demo."],
+            ["kofi", "Tom, what's first?"],
+            ["tom", "An imaginary summit has agreed to keep talking. Which, at this hour, I can respect."]
           ]
         },
         {
-          "id": "world-story", "type": "story", "kicker": "SAMPLE STORY",
-          "headline": "Sample story: talks run late into the night",
-          "ticker": "DEMO  ·  Sample story  ·  Live stories cite the outlets they come from",
+          "id": "world-daytime", "type": "story", "kicker": "DAYTIME", "presenters": ["margot", "tom"],
+          "headline": "Daytime: talks run late into the night",
+          "ticker": "DEMO  ·  Daytime with Margot and Tom  ·  Sample story",
           "lines": [
+            ["margot", "Good afternoon. I'm Margot Lane, with Tom Hale."],
             ["margot", "In our sample story, negotiators at an imaginary summit have agreed to keep talking past midnight."],
-            ["kofi", "And that matters, Margot, because when talks run late it usually means both sides think a deal is close."],
-            ["margot", "We'll bring you any developments, should our imaginary negotiators make any."]
+            ["tom", "And when talks run late, Margot, it usually means both sides think a deal is close."]
           ]
         },
         {
-          "id": "world-link", "type": "link", "kicker": "COMING UP",
-          "headline": "Coming up on World",
-          "ticker": "DEMO  ·  Coming up: more sample headlines",
+          "id": "world-evening", "type": "story", "kicker": "EVENING", "presenters": ["margot", "kofi"],
+          "headline": "Evening: the day's sample headlines",
+          "ticker": "DEMO  ·  The evening news with Margot and Kofi",
           "lines": [
-            ["kofi", "Coming up after the break: a round-up of the day's other sample headlines."],
-            ["margot", "Stay with us. This is Pixel Art News."]
+            ["margot", "Good evening, this is Pixel Art News. I'm Margot Lane."],
+            ["kofi", "And I'm Kofi Mensah. Tonight's stories are samples: when we go live, it's the real news, with every source linked on screen."],
+            ["margot", "Kofi, why does that matter?"],
+            ["kofi", "Because you should always be able to check what we tell you."]
+          ]
+        },
+        {
+          "id": "world-overnight", "type": "story", "kicker": "OVERNIGHT", "presenters": ["tom"],
+          "headline": "Overnight: the world while you sleep",
+          "ticker": "DEMO  ·  Overnight with Tom Hale",
+          "lines": [
+            ["tom", "Good evening, or good morning, depending where you are. I'm Tom Hale."],
+            ["tom", "Overnight, I'll keep an eye on the world while you sleep. Tonight it's sample stories, so it's a quiet one."]
           ]
         }
       ]
@@ -39,30 +68,44 @@
       "id": "tech",
       "segments": [
         {
-          "id": "tech-headlines", "type": "headlines", "kicker": "WELCOME",
-          "headline": "Tech desk: demo edition",
-          "ticker": "DEMO  ·  Sample stories only  ·  Ray Byte, live from the server room",
+          "id": "tech-breakfast", "type": "headlines", "kicker": "BREAKFAST", "presenters": ["nina", "leo"],
+          "headline": "Breakfast: tech you'll use today",
+          "ticker": "DEMO  ·  Breakfast with Nina and Leo",
           "lines": [
-            ["ray", "Hey, welcome to the tech desk. I'm Ray Byte, coming to you from inside a very warm server rack."],
-            ["ray", "Quick heads up: this is a demo, so tonight's gadgets are entirely made up. The real ones arrive when the feeds switch on."]
+            ["nina", "Morning! Nina Patch here, with Leo Kernel, and the tech you'll actually use today."],
+            ["leo", "Well, sample tech. This is a demo."],
+            ["nina", "So, Leo, in plain English: what's a chip?"],
+            ["leo", "The brain inside your phone. A very small, very warm brain."]
           ]
         },
         {
-          "id": "tech-story", "type": "story", "kicker": "SAMPLE STORY",
-          "headline": "Sample story: a phone battery that lasts a week",
-          "ticker": "DEMO  ·  Sample story  ·  Battery claims, tested later",
+          "id": "tech-daytime", "type": "story", "kicker": "DAYTIME", "presenters": ["ray", "leo"],
+          "headline": "Daytime: a battery that lasts a week",
+          "ticker": "DEMO  ·  Daytime with Ray and Leo  ·  Sample story",
           "lines": [
-            ["ray", "Our sample story: a new chip that promises a phone battery lasting a whole week."],
-            ["ray", "Now, I love a big claim as much as anyone. But week-long battery life usually means very dim screens, or very optimistic testing."],
-            ["ray", "So: interesting, possibly true, and definitely worth waiting for the independent reviews."]
+            ["ray", "Hey, it's Ray Byte, with Leo. Our sample story: a chip that promises a week of battery."],
+            ["leo", "Promises being the key word."],
+            ["ray", "Exactly. Interesting, unproven, worth watching."]
           ]
         },
         {
-          "id": "tech-link", "type": "link", "kicker": "COMING UP",
-          "headline": "Next: Gadget Check",
-          "ticker": "DEMO  ·  Next: Gadget Check",
+          "id": "tech-evening", "type": "story", "kicker": "EVENING", "presenters": ["ray", "nina"],
+          "headline": "Evening: hype versus reality",
+          "ticker": "DEMO  ·  The evening tech desk with Ray and Nina",
           "lines": [
-            ["ray", "Next up, it's Gadget Check, where I plug things in so you don't have to. Don't go anywhere."]
+            ["ray", "Good evening from a very warm server room! I'm Ray Byte."],
+            ["nina", "And I'm Nina Patch. Ray, this new gadget sounds amazing. What does it cost?"],
+            ["ray", "Ah. The sample press release doesn't say."],
+            ["nina", "Then neither will we."]
+          ]
+        },
+        {
+          "id": "tech-overnight", "type": "story", "kicker": "OVERNIGHT", "presenters": ["leo"],
+          "headline": "Overnight: the night shift",
+          "ticker": "DEMO  ·  Overnight with Leo Kernel",
+          "lines": [
+            ["leo", "Hello from the night shift in the server room. I'm Leo Kernel."],
+            ["leo", "While you sleep, the servers hum, the fans spin, and tonight, the stories are all samples."]
           ]
         }
       ]
@@ -71,30 +114,43 @@
       "id": "science",
       "segments": [
         {
-          "id": "science-headlines", "type": "headlines", "kicker": "WELCOME",
-          "headline": "Lab Notes: demo edition",
-          "ticker": "DEMO  ·  Sample stories only  ·  Lab Notes with Professor Ada Quark",
+          "id": "science-breakfast", "type": "headlines", "kicker": "BREAKFAST", "presenters": ["mina", "sam"],
+          "headline": "Breakfast: from the field to the stars",
+          "ticker": "DEMO  ·  Breakfast with Mina and Sam",
+          "lines": [
+            ["mina", "Good morning! I'm Mina Fields, just back from the field."],
+            ["sam", "And I'm Sam Orbit, just back from staring at the sky all night. It's a demo, so our discoveries are samples."],
+            ["mina", "Sam, how was the sky?"],
+            ["sam", "Clear, and full of things we don't understand yet. Which is the best kind."]
+          ]
+        },
+        {
+          "id": "science-daytime", "type": "story", "kicker": "DAYTIME", "presenters": ["ada", "sam"],
+          "headline": "Daytime: water vapour on a distant moon",
+          "ticker": "DEMO  ·  Daytime with Ada and Sam  ·  Sample story",
+          "lines": [
+            ["ada", "Good afternoon, I'm Professor Ada Quark, with Sam Orbit."],
+            ["sam", "In our sample story, a telescope spots what looks like water vapour above a distant moon."],
+            ["ada", "Like seeing breath on a cold morning. It doesn't prove anything is there, but something is going on."]
+          ]
+        },
+        {
+          "id": "science-evening", "type": "story", "kicker": "EVENING", "presenters": ["ada", "mina"],
+          "headline": "Evening: Lab Notes",
+          "ticker": "DEMO  ·  Lab Notes with Ada and Mina",
           "lines": [
             ["ada", "Good evening, and welcome to Lab Notes. I'm Professor Ada Quark."],
-            ["ada", "Tonight's experiments are purely hypothetical, because this is a demo. Real discoveries will follow once our feeds are switched on."]
+            ["mina", "And I'm Mina Fields. Ada, how sure are we about tonight's sample results?"],
+            ["ada", "Not very, Mina. They're samples. Do stay curious."]
           ]
         },
         {
-          "id": "science-story", "type": "story", "kicker": "SAMPLE STORY",
-          "headline": "Sample story: water vapour spotted on a distant moon",
-          "ticker": "DEMO  ·  Sample story  ·  Preliminary results, as always",
+          "id": "science-overnight", "type": "story", "kicker": "OVERNIGHT", "presenters": ["sam"],
+          "headline": "Overnight: a good night for looking up",
+          "ticker": "DEMO  ·  Overnight with Sam Orbit",
           "lines": [
-            ["ada", "In our sample story, a telescope has spotted what looks like water vapour drifting above a distant moon."],
-            ["ada", "Think of it like seeing breath on a cold morning: it doesn't tell you there's a person, but it tells you something is going on."],
-            ["ada", "As always, these results would be preliminary until other teams can check them."]
-          ]
-        },
-        {
-          "id": "science-link", "type": "link", "kicker": "COMING UP",
-          "headline": "Coming up on Science",
-          "ticker": "DEMO  ·  Coming up: more sample science",
-          "lines": [
-            ["ada", "After the break: why your kettle is secretly a lesson in thermodynamics. Do stay tuned."]
+            ["sam", "Hello, night owls. I'm Sam Orbit."],
+            ["sam", "It's a good night for looking up. And here's the strange bit: the light you see from some stars left them before anyone you know was born."]
           ]
         }
       ]
@@ -103,32 +159,42 @@
       "id": "sport",
       "segments": [
         {
-          "id": "sport-headlines", "type": "headlines", "kicker": "WELCOME",
-          "headline": "The round-up: demo edition",
-          "ticker": "DEMO  ·  Sample results only  ·  Gus and Dee in the studio",
+          "id": "sport-breakfast", "type": "headlines", "kicker": "BREAKFAST", "presenters": ["gus", "jas"],
+          "headline": "Breakfast: the morning round-up",
+          "ticker": "DEMO  ·  Breakfast with Gus and Jas",
+          "lines": [
+            ["gus", "Morning, everyone. Gus Ginger here, with Jas Kaur."],
+            ["jas", "Morning, Gus! Overnight there was cricket, football and, for once, no injuries to your pride."],
+            ["gus", "The day is young, Jas."]
+          ]
+        },
+        {
+          "id": "sport-daytime", "type": "story", "kicker": "DAYTIME", "presenters": ["dee", "jas"],
+          "headline": "Daytime: late winner sends underdogs through",
+          "ticker": "DEMO  ·  Daytime with Dee and Jas  ·  Sample story",
+          "lines": [
+            ["dee", "Afternoon! Dee Striker and Jas Kaur. Our sample story: the underdogs win it in the last minute!"],
+            ["jas", "And they'd only had one shot on target before that, Dee."],
+            ["dee", "Fresh legs, Jas. Fair play to them."]
+          ]
+        },
+        {
+          "id": "sport-evening", "type": "story", "kicker": "EVENING", "presenters": ["dee", "gus"],
+          "headline": "Evening: the results round-up",
+          "ticker": "DEMO  ·  The evening round-up with Dee and Gus",
           "lines": [
             ["gus", "Evening, everyone. I'm Gus Ginger, and with me as always is Dee Striker."],
-            ["dee", "Evening, Gus! Now, I have to tell everyone: this is a demo, so tonight's results are completely invented."],
+            ["dee", "Evening, Gus! Tonight's results are invented, because it's a demo."],
             ["gus", "Which means for once, Dee, your predictions can't be wrong."]
           ]
         },
         {
-          "id": "sport-story", "type": "story", "kicker": "SAMPLE STORY",
-          "headline": "Sample story: late winner sends the underdogs through",
-          "ticker": "DEMO  ·  Sample story  ·  Final score, also imaginary",
+          "id": "sport-overnight", "type": "story", "kicker": "OVERNIGHT", "presenters": ["jas"],
+          "headline": "Overnight: results from around the world",
+          "ticker": "DEMO  ·  Overnight with Jas Kaur",
           "lines": [
-            ["gus", "Our sample story: the underdogs have reached the final with a winner in the last minute."],
-            ["dee", "And tactically, Gus, that's all about fresh legs. Bring a striker on late against tired defenders and things open right up."],
-            ["gus", "Fresh legs. I've been saying that about my own for years."]
-          ]
-        },
-        {
-          "id": "sport-link", "type": "link", "kicker": "COMING UP",
-          "headline": "Coming up on Sport",
-          "ticker": "DEMO  ·  Coming up: the results round-up",
-          "lines": [
-            ["dee", "Coming up, the full results round-up, with every sample score."],
-            ["gus", "Don't touch that dial."]
+            ["jas", "Hello, night owls. Jas Kaur here, with sport from time zones that are wide awake."],
+            ["jas", "Tonight's scores are samples, so I'll spare you the numbers. Just this once."]
           ]
         }
       ]
@@ -137,46 +203,46 @@
       "id": "weird",
       "segments": [
         {
-          "id": "weird-headlines", "type": "headlines", "kicker": "WELCOME",
-          "headline": "Weird News: demo edition",
-          "ticker": "DEMO  ·  Sample stories only  ·  Rex Fizz and Zorp, unexplained",
+          "id": "weird-breakfast", "type": "headlines", "kicker": "BREAKFAST", "presenters": ["zorp", "mags"],
+          "headline": "Breakfast: odd things before coffee",
+          "ticker": "DEMO  ·  Breakfast with Zorp and Mags",
           "lines": [
-            ["rex", "Welcome, welcome, welcome to Weird News! I'm Rex Fizz!"],
-            ["zorp", "I am Zorp. I have been told this is a demo. On my planet, all news is a demo."],
-            ["rex", "Tonight's stories are samples, folks, but trust me, the real ones are even stranger!"]
+            ["mags", "Good morning, I'm Mags Moth, with Zorp."],
+            ["zorp", "Good morning. Humans eat toast at this hour. I have tried toast. It is warm bread with opinions."],
+            ["mags", "Make of that what you will."]
           ]
         },
         {
-          "id": "weird-story", "type": "story", "kicker": "ODD SPOT",
-          "headline": "Sample story: town elects a goat as honorary mayor",
-          "ticker": "DEMO  ·  Sample story  ·  The goat has not commented",
+          "id": "weird-daytime", "type": "story", "kicker": "DAYTIME", "presenters": ["rex", "mags"],
+          "headline": "Daytime: town elects a goat as honorary mayor",
+          "ticker": "DEMO  ·  Daytime with Rex and Mags  ·  Sample story",
           "lines": [
-            ["rex", "Our sample scoop of the century: a small town has elected a goat as its honorary mayor!"],
-            ["zorp", "I have studied your elections. This seems like an improvement."],
-            ["rex", "Zorp! We do not endorse goats!"],
-            ["zorp", "Noted. I will endorse them privately."]
+            ["rex", "Welcome, welcome, welcome to Weird News! I'm Rex Fizz, with Mags Moth!"],
+            ["rex", "Our sample scoop: a town has elected a goat as honorary mayor!"],
+            ["mags", "Folklore says goats are good luck, Rex. Mind you, folklore says a lot of things."]
           ]
         },
         {
-          "id": "weird-link", "type": "link", "kicker": "COMING UP",
-          "headline": "Next: the Odd Spot",
-          "ticker": "DEMO  ·  Next: the Odd Spot",
+          "id": "weird-evening", "type": "story", "kicker": "ODD SPOT", "presenters": ["rex", "zorp"],
+          "headline": "Evening: the Odd Spot",
+          "ticker": "DEMO  ·  The Odd Spot with Rex and Zorp",
           "lines": [
-            ["rex", "Coming up in the Odd Spot: a potato that looks exactly like a famous lighthouse!"],
-            ["zorp", "I have seen it. It is a potato."]
+            ["rex", "It's the evening Odd Spot! A potato that looks exactly like a lighthouse!"],
+            ["zorp", "I have seen it. It is a potato."],
+            ["rex", "Zorp! Where's your sense of wonder?"],
+            ["zorp", "On my planet. I left it in a drawer."]
+          ]
+        },
+        {
+          "id": "weird-overnight", "type": "story", "kicker": "OVERNIGHT", "presenters": ["mags"],
+          "headline": "Overnight: tales for night owls",
+          "ticker": "DEMO  ·  Overnight with Mags Moth",
+          "lines": [
+            ["mags", "Hello, night owls. I'm Mags Moth."],
+            ["mags", "Tonight's strange tales are only samples. But listen closely, and you might hear something odd anyway."]
           ]
         }
       ]
     }
-  ],
-  "voices": {
-    "margot": "bf_emma",
-    "kofi": "am_michael",
-    "ray": "am_adam",
-    "ada": "bf_isabella",
-    "dee": "af_bella",
-    "gus": "bm_george",
-    "rex": "am_puck",
-    "zorp": "am_echo"
-  }
+  ]
 }

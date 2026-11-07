@@ -1,4 +1,5 @@
 import type { Rundown } from './rundown';
+import type { Look } from './scenes/presenters';
 
 // `pnpm build:demo` sets this: sample broadcasts bundled with the app instead
 // of the server. Vite inlines the flag, so normal builds drop the demo code.
@@ -7,6 +8,9 @@ const DEMO = import.meta.env.VITE_DEMO === '1';
 export interface Presenter {
   id: string;
   name: string;
+  /** Shifts they work: breakfast, daytime, evening, overnight. */
+  shifts: string[];
+  look?: Look;
 }
 
 export interface Channel {

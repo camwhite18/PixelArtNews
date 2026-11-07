@@ -1,36 +1,73 @@
 import { describe, expect, it } from 'vitest';
 import { SCENES } from './data';
-import { HEIGHT, idleTalk, WIDTH } from './render';
+import {
+  DEFAULT_LOOK, type Look, presenterRects, seatsFor,
+} from './presenters';
+import {
+  HEIGHT, idleTalk, sceneLayers, WIDTH,
+} from './render';
 
-// Presenters per studio, matching the seeded channels.
-const PRESENTERS: Record<string, number> = {
-  world: 2, tech: 1, science: 1, sport: 2, weird: 2,
+const human: Look = {
+  skin: '#e8b48a',
+  hair: '#2b1a10',
+  hairStyle: 'afro',
+  outfit: '#b03a48',
+  shirt: '#f4f1e6',
+  neck: 'tie',
+  glasses: true,
+  beard: '#2b1a10',
+  headset: true,
 };
+const alien: Look = {
+  skin: '#7be05a', alien: true, outfit: '#a9a6b8', neck: 'badge',
+};
+const frame = { time: 0, talking: 0, mouthOpen: true };
 
-describe('scene data', () => {
+const inside = ([x, y, w, h]: number[]) => x >= 0 && y >= 0 && x + w <= WIDTH && y + h <= HEIGHT;
+
+describe('studios', () => {
   it('has a studio for every channel', () => {
-    expect(Object.keys(SCENES).sort()).toEqual(Object.keys(PRESENTERS).sort());
+    expect(Object.keys(SCENES).sort()).toEqual(['science', 'sport', 'tech', 'weird', 'world']);
   });
 
-  describe.each(Object.entries(SCENES))('%s', (id, scene) => {
-    it('keeps every rect inside the 320x180 canvas', () => {
-      scene.rects.forEach(([x, y, w, h]) => {
-        expect(x).toBeGreaterThanOrEqual(0);
-        expect(y).toBeGreaterThanOrEqual(0);
-        expect(x + w).toBeLessThanOrEqual(WIDTH);
-        expect(y + h).toBeLessThanOrEqual(HEIGHT);
+  describe.each(Object.entries(SCENES))('%s', (_, scene) => {
+    it.each([
+      ['a solo host', [human]],
+      ['a pair', [human, alien]],
+      ['an alien pair', [alien, DEFAULT_LOOK]],
+    ])('keeps %s inside the canvas', (_label, team) => {
+      sceneLayers(scene, team, frame).flat().forEach((r) => {
+        expect(inside(r as number[]), `rect ${r.slice(0, 4).join(',')}`).toBe(true);
       });
     });
 
-    it('has an animated mouth for each presenter', () => {
-      const mouths = new Set(scene.rects.map((r) => r[5]).filter((a) => a?.startsWith('mouth')));
-      expect(mouths.size).toBe(PRESENTERS[id]);
+    it('seats a pair without overlapping heads', () => {
+      const [a, b] = seatsFor(scene.seats, 2);
+      expect(b - a).toBeGreaterThanOrEqual(40);
     });
   });
 });
 
+describe('presenter sprites', () => {
+  it('opens only the speaking presenter\'s mouth', () => {
+    const scene = SCENES.world;
+    const f = { time: 0, talking: 1, mouthOpen: true };
+    const [, bodies] = sceneLayers(scene, [human, DEFAULT_LOOK], f);
+    const [x0, x1] = seatsFor(scene.seats, 2);
+    const open = bodies.filter(([, y, w, h]) => y === 81 && h === 4 && w === 6);
+    expect(open.map(([x]) => x)).toEqual([x1 + 8]);
+    expect(open.map(([x]) => x)).not.toContain(x0 + 8);
+  });
+
+  it('draws different looks differently', () => {
+    const a = presenterRects(100, human, 0, false);
+    expect(a).not.toEqual(presenterRects(100, DEFAULT_LOOK, 0, false));
+    expect(presenterRects(100, alien, 0, false).some(([, y]) => y < 55)).toBe(true); // antennae
+  });
+});
+
 describe('idleTalk', () => {
-  it('alternates speakers on two-presenter channels', () => {
+  it('alternates speakers on two-presenter teams', () => {
     expect(idleTalk(0, 2).talking).toBe(0);
     expect(idleTalk(2500, 2).talking).toBe(1);
     expect(idleTalk(2500, 1).talking).toBe(0);
