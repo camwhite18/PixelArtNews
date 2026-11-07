@@ -4,7 +4,7 @@
 GOLANGCI_LINT_VERSION := v2.15.0
 GOVULNCHECK_VERSION   := v1.9.0
 TRIVY_VERSION         := 0.76.2
-GO_IMAGE              := golang:1.24
+GO_IMAGE              := golang:1.26
 
 .PHONY: check tidy lint lint-web lint-go test vuln govulncheck trivy
 

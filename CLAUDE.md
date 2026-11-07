@@ -3,7 +3,7 @@
 Self-hosted 24/7 pixel-art AI news channels. See README.md for the architecture.
 
 ## Layout
-- `server/` Go 1.24: `cmd/server` entrypoint; `internal/pipeline` (ingest → cluster → script → voice → publish), `internal/jobs` (River queue), `internal/httpapi`, `internal/store` (pgx), `internal/rundown` (schedule format and `Extend`).
+- `server/` Go 1.26: `cmd/server` entrypoint; `internal/pipeline` (ingest → cluster → script → voice → publish), `internal/jobs` (River queue), `internal/httpapi`, `internal/store` (pgx), `internal/rundown` (schedule format and `Extend`).
 - `web/` Preact + Vite + TypeScript. Studios are canvas drawings in `src/scenes/data.ts` (generated from the design mockup; edit by hand now). Overlays are HTML/CSS sized in container units (`cqw`).
 - `tts/` FastAPI + Kokoro. `/synthesize` takes lines with voices and returns one MP3, its duration and per-line start offsets.
 - `schema/rundown.schema.json` is the source of truth for the rundown format.

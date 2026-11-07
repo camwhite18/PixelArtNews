@@ -136,7 +136,7 @@ Write:
 Every line must cite sourceIds from the list above.`, src.text)
 
 	msg, err := p.Claude.Messages.New(ctx, anthropic.MessageNewParams{
-		Model:     anthropic.Model(p.Cfg.ModelMain),
+		Model:     p.Cfg.ModelMain,
 		MaxTokens: 4096,
 		System: []anthropic.TextBlockParam{
 			{Text: houseStyle},
