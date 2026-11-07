@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { type Channel, serverNow } from '../api';
 import { Studio } from '../components/Studio';
+import { looksOf, namesOf, teamOnSet } from '../team';
 import { href, navigate } from '../router';
 import {
   clockTime, onAir, segmentLabel, startMs, upNext,
@@ -20,7 +21,8 @@ function ChannelCard({ channel, index, now }: { channel: Channel; index: number;
   const rundown = useRundown(channel.id);
   const air = onAir(rundown, now);
   const next = upNext(rundown, now);
-  const hosts = channel.presenters.map((p) => p.name).join(' & ');
+  const team = teamOnSet(channel, air?.segment, now);
+  const hosts = namesOf(team);
 
   const open = (e: MouseEvent) => {
     e.preventDefault();
@@ -43,7 +45,7 @@ function ChannelCard({ channel, index, now }: { channel: Channel; index: number;
       <div className="card-frame">
         <Studio
           scene={channel.scene}
-          presenters={channel.presenters.length}
+          team={looksOf(team)}
           label={`${channel.name} studio`}
         />
         {air && (

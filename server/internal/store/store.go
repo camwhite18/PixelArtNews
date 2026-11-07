@@ -3,8 +3,10 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -73,16 +75,38 @@ type Channel struct {
 }
 
 type Presenter struct {
-	ID      string `json:"id"`
-	Name    string `json:"name"`
-	Persona string `json:"-"`
-	Voice   string `json:"-"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	// Shifts this presenter works (shifts.Timetable ids).
+	Shifts []string `json:"shifts"`
+	// Look describes the presenter's pixel-art sprite for the front end.
+	Look    json.RawMessage `json:"look,omitempty"`
+	Persona string          `json:"-"`
+	Voice   string          `json:"-"`
+	// Speed is the presenter's speaking pace (1 = Kokoro's default).
+	Speed float64 `json:"-"`
+}
+
+// OnShift returns the presenters working a shift, in seat order. A channel
+// with nobody on that shift falls back to all its presenters.
+func (c Channel) OnShift(shiftID string) []Presenter {
+	var team []Presenter
+	for _, p := range c.Presenters {
+		if slices.Contains(p.Shifts, shiftID) {
+			team = append(team, p)
+		}
+	}
+	if len(team) == 0 {
+		return c.Presenters
+	}
+	return team
 }
 
 // Channels returns the enabled channels with their presenters, in display order.
 func (s *Store) Channels(ctx context.Context) ([]Channel, error) {
 	rows, err := s.Pool.Query(ctx, `
-		SELECT c.id, c.name, c.accent, c.scene, p.id, p.name, p.persona, p.voice
+		SELECT c.id, c.name, c.accent, c.scene,
+		       p.id, p.name, p.persona, p.voice, p.shifts, p.speed, p.look
 		FROM channels c
 		LEFT JOIN presenters p ON p.channel_id = c.id
 		WHERE c.enabled
@@ -96,7 +120,11 @@ func (s *Store) Channels(ctx context.Context) ([]Channel, error) {
 	for rows.Next() {
 		var c Channel
 		var pid, pname, persona, voice *string
-		if err := rows.Scan(&c.ID, &c.Name, &c.Accent, &c.Scene, &pid, &pname, &persona, &voice); err != nil {
+		var shiftIDs []string
+		var speed *float64
+		var look []byte
+		if err := rows.Scan(&c.ID, &c.Name, &c.Accent, &c.Scene,
+			&pid, &pname, &persona, &voice, &shiftIDs, &speed, &look); err != nil {
 			return nil, err
 		}
 		if len(out) == 0 || out[len(out)-1].ID != c.ID {
@@ -104,7 +132,14 @@ func (s *Store) Channels(ctx context.Context) ([]Channel, error) {
 		}
 		if pid != nil {
 			last := &out[len(out)-1]
-			last.Presenters = append(last.Presenters, Presenter{ID: *pid, Name: *pname, Persona: *persona, Voice: *voice})
+			pr := Presenter{ID: *pid, Name: *pname, Persona: *persona, Voice: *voice, Shifts: shiftIDs, Speed: 1}
+			if speed != nil {
+				pr.Speed = *speed
+			}
+			if len(look) > 0 {
+				pr.Look = json.RawMessage(look)
+			}
+			last.Presenters = append(last.Presenters, pr)
 		}
 	}
 	return out, rows.Err()

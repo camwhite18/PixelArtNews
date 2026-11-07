@@ -12,7 +12,9 @@ feeds ──► ingest ──► cluster ──► script (Claude) ──► voi
 
 - **Virtual live.** Each channel has a *rundown*: segments with absolute UTC start times. The browser plays whatever is on air *now*, seeking into the audio, so every viewer hears the same moment. Nothing is streamed.
 - **Rolling schedule.** Each hourly run queues fresh segments after the one airing and repeats them up to `SCHEDULE_HORIZON`. It never changes what is on air, and a failed run leaves the old schedule playing.
-- **Skip if unchanged.** If a channel's top stories haven't changed, the run stops before calling Claude or TTS.
+- **Presenter shifts.** Every channel has three presenters on a daily timetable in UK time: breakfast (06:00), daytime (10:00), evening (17:00, the flagship pair) and overnight (23:00, one host). Each run scripts the team on air; if the next shift starts before the following run, it also scripts the next team and hands over at the shift change. Presenters' looks (their pixel sprites), voices and pace live in the database.
+- **Skip if unchanged.** If a channel's top stories (and the team on air) haven't changed, the run stops before calling Claude or TTS.
+- **Natural-sounding voices.** The TTS service trims each line, picks pauses by context (handover, answer, same speaker), adds a quiet room tone and a light broadcast chain, and normalises loudness.
 - **Grounding.** Claude only sees feed headlines and summaries, must cite a source id on every line, and lines citing nothing real are dropped before voicing.
 
 ## Repo layout

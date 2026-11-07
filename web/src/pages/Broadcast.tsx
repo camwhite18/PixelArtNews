@@ -3,6 +3,7 @@ import {
 } from 'preact/hooks';
 import { type Channel, serverNow } from '../api';
 import { Studio } from '../components/Studio';
+import { looksOf, namesOf, teamOnSet } from '../team';
 import { type NowPlaying, Player } from '../player';
 import { href, navigate } from '../router';
 import {
@@ -80,8 +81,9 @@ export function Broadcast({
 
   const seg = np.segment;
   const next = upNext(rundown, now);
-  const talking = seg ? channel.presenters.findIndex((p) => p.id === np.speaker) : null;
-  const hosts = channel.presenters.map((p) => p.name).join(' & ');
+  const team = teamOnSet(channel, seg, now);
+  const talking = seg ? team.findIndex((p) => p.id === np.speaker) : null;
+  const hosts = namesOf(team);
 
   return (
     <main
@@ -100,7 +102,7 @@ export function Broadcast({
       <div className="stage">
         <Studio
           scene={seg ? channel.scene : null}
-          presenters={channel.presenters.length}
+          team={looksOf(team)}
           talking={talking === null || talking < 0 ? null : talking}
           level={() => player.level()}
           staticUntil={staticUntil}

@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"time"
+	_ "time/tzdata" // the container image has no zoneinfo files
 )
 
 type Config struct {
@@ -25,6 +26,9 @@ type Config struct {
 	BreakingInterval time.Duration
 	ScheduleHorizon  time.Duration
 	RunOnStart       bool
+
+	// Location is the time zone presenter shifts follow (TIMEZONE).
+	Location *time.Location
 }
 
 func Load() (Config, error) {
@@ -46,6 +50,11 @@ func Load() (Config, error) {
 	if c.DatabaseURL == "" {
 		return c, fmt.Errorf("DATABASE_URL is required")
 	}
+	loc, err := time.LoadLocation(env("TIMEZONE", "Europe/London"))
+	if err != nil {
+		return c, fmt.Errorf("TIMEZONE: %w", err)
+	}
+	c.Location = loc
 	return c, nil
 }
 

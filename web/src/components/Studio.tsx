@@ -1,12 +1,14 @@
 import { useEffect, useRef } from 'preact/hooks';
+import type { Look } from '../scenes/presenters';
 import {
   drawFrame, HEIGHT, idleTalk, WIDTH,
 } from '../scenes/render';
 
 interface Props {
   scene: string | null;
-  presenters: number;
-  /** Index of the presenter speaking, from the live line; undefined = idle animation. */
+  /** The presenters on set, in seat order. */
+  team: Look[];
+  /** Seat of the presenter speaking, from the live line; undefined = idle animation. */
   talking?: number | null;
   /** Live loudness 0..1; when given, mouths follow the audio. */
   level?: () => number;
@@ -17,16 +19,16 @@ interface Props {
 
 /** A channel's pixel studio, drawn at 320x180 and scaled up with crisp pixels. */
 export function Studio({
-  scene, presenters, talking, level, staticUntil = 0, label,
+  scene, team, talking, level, staticUntil = 0, label,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const propsRef = useRef({
-    scene, presenters, talking, level, staticUntil,
+    scene, team, talking, level, staticUntil,
   });
   // The animation loop reads the latest props without restarting.
   useEffect(() => {
     propsRef.current = {
-      scene, presenters, talking, level, staticUntil,
+      scene, team, talking, level, staticUntil,
     };
   });
 
@@ -38,7 +40,7 @@ export function Studio({
     let mouthOpen = false;
     const frame = (time: number) => {
       const p = propsRef.current;
-      let state = idleTalk(time, p.presenters);
+      let state = idleTalk(time, p.team.length);
       if (p.talking !== undefined) {
         // Pixel mouths look best toggling at ~8fps rather than every frame.
         if (time - lastMouth > 120) {
@@ -47,7 +49,7 @@ export function Studio({
         }
         state = { talking: p.talking, mouthOpen: p.talking !== null && mouthOpen };
       }
-      drawFrame(ctx, p.scene, { time, ...state, static: time < p.staticUntil });
+      drawFrame(ctx, p.scene, p.team, { time, ...state, static: time < p.staticUntil });
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);

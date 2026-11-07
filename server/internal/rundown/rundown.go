@@ -20,8 +20,10 @@ type Segment struct {
 	Kicker    string    `json:"kicker,omitempty"`
 	Headline  string    `json:"headline,omitempty"`
 	Ticker    string    `json:"ticker,omitempty"`
-	Lines     []Line    `json:"lines"`
-	Sources   []Source  `json:"sources"`
+	// Presenters on set for this segment (the shift's team), in seat order.
+	Presenters []string `json:"presenters,omitempty"`
+	Lines      []Line   `json:"lines"`
+	Sources    []Source `json:"sources"`
 }
 
 // End is when the segment stops airing.

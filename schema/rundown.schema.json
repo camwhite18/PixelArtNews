@@ -31,6 +31,11 @@
         "kicker": { "type": "string", "description": "Lower-third tab, e.g. \"TOP STORY\"." },
         "headline": { "type": "string" },
         "ticker": { "type": "string" },
+        "presenters": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Ids of the presenters on set for this segment (the shift's team), in seat order."
+        },
         "lines": {
           "type": "array",
           "items": { "$ref": "#/$defs/line" }
