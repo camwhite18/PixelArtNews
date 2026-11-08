@@ -33,7 +33,6 @@ var UK = []Place{
 	{"newcastle", "Newcastle", 54.98, -1.61},
 	{"belfast", "Belfast", 54.60, -5.93},
 	{"manchester", "Manchester", 53.48, -2.24},
-	{"birmingham", "Birmingham", 52.49, -1.89},
 	{"cardiff", "Cardiff", 51.48, -3.18},
 	{"london", "London", 51.51, -0.13},
 	{"plymouth", "Plymouth", 50.38, -4.14},

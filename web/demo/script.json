@@ -39,7 +39,27 @@
           ]
         },
         {
-          "id": "world-daytime", "type": "story", "kicker": "DAYTIME", "presenters": ["margot", "tom"],
+          "id": "world-weather", "type": "weather", "kicker": "WEATHER", "show": "breakfast", "presenters": ["kofi", "tom"],
+          "headline": "Weather: a sample forecast",
+          "ticker": "DEMO  ·  Sample weather  ·  Data on air from Open-Meteo",
+          "weather": [
+            { "place": "edinburgh", "code": 61, "maxC": 9, "minC": 4 },
+            { "place": "newcastle", "code": 3, "maxC": 10, "minC": 5 },
+            { "place": "belfast", "code": 80, "maxC": 10, "minC": 6 },
+            { "place": "manchester", "code": 63, "maxC": 11, "minC": 6 },
+            { "place": "cardiff", "code": 3, "maxC": 13, "minC": 8 },
+            { "place": "london", "code": 1, "maxC": 15, "minC": 9 },
+            { "place": "plymouth", "code": 0, "maxC": 14, "minC": 9 }
+          ],
+          "lines": [
+            ["kofi", "Now, the weather. Tom, it's a sample forecast this morning, but what's it looking like?"],
+            ["tom", "Wet in the north, Kofi. Rain for Edinburgh and Manchester, and showers over Belfast."],
+            ["tom", "Further south it brightens up, with sunshine for Plymouth and around fifteen degrees in London."],
+            ["kofi", "Umbrellas up north, sunglasses down south. Classic."]
+          ]
+        },
+        {
+          "id": "world-daytime", "type": "story", "art": "globe", "kicker": "DAYTIME", "presenters": ["margot", "tom"],
           "headline": "Daytime: talks run late into the night",
           "ticker": "DEMO  ·  Daytime with Margot and Tom  ·  Sample story",
           "lines": [
@@ -49,7 +69,7 @@
           ]
         },
         {
-          "id": "world-evening", "type": "story", "kicker": "EVENING", "presenters": ["margot", "kofi"],
+          "id": "world-evening", "type": "story", "art": "ballot", "kicker": "EVENING", "presenters": ["margot", "kofi"],
           "headline": "Evening: the day's sample headlines",
           "ticker": "DEMO  ·  The evening news with Margot and Kofi",
           "lines": [
@@ -60,7 +80,7 @@
           ]
         },
         {
-          "id": "world-overnight", "type": "story", "kicker": "OVERNIGHT", "presenters": ["tom"],
+          "id": "world-overnight", "type": "story", "art": "planet", "kicker": "OVERNIGHT", "presenters": ["tom"],
           "headline": "Overnight: the world while you sleep",
           "ticker": "DEMO  ·  Overnight with Tom Hale",
           "lines": [
@@ -85,7 +105,7 @@
           ]
         },
         {
-          "id": "tech-daytime", "type": "story", "kicker": "DAYTIME", "presenters": ["ray", "leo"],
+          "id": "tech-daytime", "type": "story", "art": "phone", "kicker": "DAYTIME", "presenters": ["ray", "leo"],
           "headline": "Daytime: a battery that lasts a week",
           "ticker": "DEMO  ·  Daytime with Ray and Leo  ·  Sample story",
           "lines": [
@@ -95,7 +115,7 @@
           ]
         },
         {
-          "id": "tech-evening", "type": "story", "kicker": "EVENING", "presenters": ["ray", "nina"],
+          "id": "tech-evening", "type": "story", "art": "chip", "kicker": "EVENING", "presenters": ["ray", "nina"],
           "headline": "Evening: hype versus reality",
           "ticker": "DEMO  ·  The evening tech desk with Ray and Nina",
           "lines": [
@@ -106,7 +126,7 @@
           ]
         },
         {
-          "id": "tech-overnight", "type": "story", "kicker": "OVERNIGHT", "presenters": ["leo"],
+          "id": "tech-overnight", "type": "story", "art": "robot", "kicker": "OVERNIGHT", "presenters": ["leo"],
           "headline": "Overnight: the night shift",
           "ticker": "DEMO  ·  Overnight with Leo Kernel",
           "lines": [
@@ -131,7 +151,7 @@
           ]
         },
         {
-          "id": "science-daytime", "type": "story", "kicker": "DAYTIME", "presenters": ["ada", "sam"],
+          "id": "science-daytime", "type": "story", "art": "planet", "kicker": "DAYTIME", "presenters": ["ada", "sam"],
           "headline": "Daytime: water vapour on a distant moon",
           "ticker": "DEMO  ·  Daytime with Ada and Sam  ·  Sample story",
           "lines": [
@@ -141,7 +161,7 @@
           ]
         },
         {
-          "id": "science-evening", "type": "story", "kicker": "EVENING", "presenters": ["ada", "mina"],
+          "id": "science-evening", "type": "story", "art": "flask", "kicker": "EVENING", "presenters": ["ada", "mina"],
           "headline": "Evening: Lab Notes",
           "ticker": "DEMO  ·  Lab Notes with Ada and Mina",
           "lines": [
@@ -151,7 +171,7 @@
           ]
         },
         {
-          "id": "science-overnight", "type": "story", "kicker": "OVERNIGHT", "presenters": ["sam"],
+          "id": "science-overnight", "type": "story", "art": "rocket", "kicker": "OVERNIGHT", "presenters": ["sam"],
           "headline": "Overnight: a good night for looking up",
           "ticker": "DEMO  ·  Overnight with Sam Orbit",
           "lines": [
@@ -175,7 +195,7 @@
           ]
         },
         {
-          "id": "sport-daytime", "type": "story", "kicker": "DAYTIME", "presenters": ["dee", "jas"],
+          "id": "sport-daytime", "type": "story", "art": "trophy", "kicker": "DAYTIME", "presenters": ["dee", "jas"],
           "headline": "Daytime: late winner sends underdogs through",
           "ticker": "DEMO  ·  Daytime with Dee and Jas  ·  Sample story",
           "lines": [
@@ -185,7 +205,7 @@
           ]
         },
         {
-          "id": "sport-evening", "type": "story", "kicker": "EVENING", "presenters": ["dee", "gus"],
+          "id": "sport-evening", "type": "story", "art": "ball", "kicker": "EVENING", "presenters": ["dee", "gus"],
           "headline": "Evening: the results round-up",
           "ticker": "DEMO  ·  The evening round-up with Dee and Gus",
           "lines": [
@@ -195,7 +215,7 @@
           ]
         },
         {
-          "id": "sport-overnight", "type": "story", "kicker": "OVERNIGHT", "presenters": ["jas"],
+          "id": "sport-overnight", "type": "story", "art": "globe", "kicker": "OVERNIGHT", "presenters": ["jas"],
           "headline": "Overnight: results from around the world",
           "ticker": "DEMO  ·  Overnight with Jas Kaur",
           "lines": [
@@ -219,7 +239,7 @@
           ]
         },
         {
-          "id": "football-daytime", "type": "story", "kicker": "DAYTIME", "presenters": ["ruby", "lou"],
+          "id": "football-daytime", "type": "story", "art": "ball", "kicker": "DAYTIME", "presenters": ["ruby", "lou"],
           "headline": "Daytime: the tactics board",
           "ticker": "DEMO  ·  Daytime with Ruby and Lou  ·  Sample story",
           "lines": [
@@ -229,7 +249,7 @@
           ]
         },
         {
-          "id": "football-evening", "type": "story", "kicker": "EVENING", "presenters": ["ruby", "danny"],
+          "id": "football-evening", "type": "story", "art": "trophy", "kicker": "EVENING", "presenters": ["ruby", "danny"],
           "headline": "Evening: Full Time",
           "ticker": "DEMO  ·  Full Time with Ruby and Danny",
           "lines": [
@@ -240,7 +260,7 @@
           ]
         },
         {
-          "id": "football-overnight", "type": "story", "kicker": "OVERNIGHT", "presenters": ["lou"],
+          "id": "football-overnight", "type": "story", "art": "ball", "kicker": "OVERNIGHT", "presenters": ["lou"],
           "headline": "Overnight: goals from around the world",
           "ticker": "DEMO  ·  Overnight with Lou Offside",
           "lines": [
@@ -264,7 +284,7 @@
           ]
         },
         {
-          "id": "f1-daytime", "type": "story", "kicker": "DAYTIME", "presenters": ["vee", "tess"],
+          "id": "f1-daytime", "type": "story", "art": "flag", "kicker": "DAYTIME", "presenters": ["vee", "tess"],
           "headline": "Daytime: lap 42",
           "ticker": "DEMO  ·  Daytime with Vee and Tess  ·  Sample story",
           "lines": [
@@ -274,7 +294,7 @@
           ]
         },
         {
-          "id": "f1-evening", "type": "story", "kicker": "EVENING", "presenters": ["vee", "rory"],
+          "id": "f1-evening", "type": "story", "art": "car", "kicker": "EVENING", "presenters": ["vee", "rory"],
           "headline": "Evening: qualifying",
           "ticker": "DEMO  ·  Qualifying with Vee and Rory",
           "lines": [
@@ -285,7 +305,7 @@
           ]
         },
         {
-          "id": "f1-overnight", "type": "story", "kicker": "OVERNIGHT", "presenters": ["tess"],
+          "id": "f1-overnight", "type": "story", "art": "flag", "kicker": "OVERNIGHT", "presenters": ["tess"],
           "headline": "Overnight: the night race",
           "ticker": "DEMO  ·  Overnight with Tess Grid",
           "lines": [
@@ -309,7 +329,7 @@
           ]
         },
         {
-          "id": "weird-daytime", "type": "story", "kicker": "DAYTIME", "presenters": ["rex", "mags"],
+          "id": "weird-daytime", "type": "story", "art": "ballot", "kicker": "DAYTIME", "presenters": ["rex", "mags"],
           "headline": "Daytime: town elects a goat as honorary mayor",
           "ticker": "DEMO  ·  Daytime with Rex and Mags  ·  Sample story",
           "lines": [
@@ -319,7 +339,7 @@
           ]
         },
         {
-          "id": "weird-evening", "type": "story", "kicker": "ODD SPOT", "presenters": ["rex", "zorp"],
+          "id": "weird-evening", "type": "story", "art": "ghost", "kicker": "ODD SPOT", "presenters": ["rex", "zorp"],
           "headline": "Evening: the Odd Spot",
           "ticker": "DEMO  ·  The Odd Spot with Rex and Zorp",
           "lines": [
@@ -330,7 +350,7 @@
           ]
         },
         {
-          "id": "weird-overnight", "type": "story", "kicker": "OVERNIGHT", "presenters": ["mags"],
+          "id": "weird-overnight", "type": "story", "art": "ufo", "kicker": "OVERNIGHT", "presenters": ["mags"],
           "headline": "Overnight: tales for night owls",
           "ticker": "DEMO  ·  Overnight with Mags Moth",
           "lines": [

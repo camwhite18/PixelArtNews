@@ -1,7 +1,7 @@
 import type { Line, Rundown, Segment } from './generated/rundown';
 
 export type {
-  Line, Rundown, Segment, Source,
+  Line, Rundown, Segment, Source, WeatherPlace,
 } from './generated/rundown';
 
 export const startMs = (s: Segment) => Date.parse(s.start);
@@ -48,6 +48,7 @@ const SEGMENT_LABELS: Record<Segment['type'], string> = {
   recap: 'Recap',
   breaking: 'Breaking News',
   advert: 'Break',
+  weather: 'Weather',
   idle: 'Off Air',
 };
 

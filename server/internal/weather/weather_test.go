@@ -21,7 +21,7 @@ func TestFetchReadsEachPlace(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	places := []Place{UK[0], UK[6]}
+	places := []Place{UK[0], UK[5]}
 	days, err := Fetch(context.Background(), srv.Client(), srv.URL, places, time.UTC)
 	if err != nil {
 		t.Fatal(err)

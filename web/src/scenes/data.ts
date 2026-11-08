@@ -15,8 +15,12 @@
 // and for a pair (`two`), in seat order.
 // prop: the left edge of a clear spot on the desk for a small seasonal prop.
 // clocks: wall clocks that show the real time in a city (clocks.ts).
+// screen: the big screen or window where story art and the weather map go.
+// board: draws real data (api.ts Board) over the studio's board, if it has one.
 
+import type { Board } from '../api';
 import type { Clock } from './clocks';
+import type { Box } from './draw';
 import { f1Scene } from './f1';
 import { footballScene } from './football';
 
@@ -33,6 +37,15 @@ export interface SceneData {
   seats: Seats;
   prop: number;
   clocks?: Clock[];
+  screen?: Box;
+  board?: (b: Board) => BoardGraphics;
+}
+
+export interface BoardGraphics {
+  rects: Rect[];
+  texts: Text[];
+  /** On-set text the board replaces (by position), e.g. a decorative header. */
+  replaces?: [number, number][];
 }
 
 const world: SceneData = {
@@ -89,6 +102,9 @@ const world: SceneData = {
   ],
   seats: { one: 136, two: [88, 184] },
   prop: 236,
+  screen: {
+    x: 18, y: 10, w: 216, h: 88,
+  },
   clocks: [
     { x: 258, y: 46, zone: 'Europe/London' },
     { x: 258, y: 70, zone: 'America/New_York' },
@@ -208,6 +224,9 @@ const tech: SceneData = {
   ],
   seats: { one: 120, two: [118, 182] },
   prop: 226,
+  screen: {
+    x: 173, y: 19, w: 94, h: 64,
+  },
 };
 
 const science: SceneData = {
@@ -287,6 +306,9 @@ const science: SceneData = {
   ],
   seats: { one: 134, two: [104, 164] },
   prop: 72,
+  screen: {
+    x: 180, y: 14, w: 96, h: 84,
+  },
 };
 
 const sport: SceneData = {
@@ -375,6 +397,9 @@ const sport: SceneData = {
   ],
   seats: { one: 137, two: [88, 186] },
   prop: 248,
+  screen: {
+    x: 124, y: 6, w: 72, h: 22,
+  },
 };
 
 const weird: SceneData = {
@@ -448,6 +473,9 @@ const weird: SceneData = {
   ],
   seats: { one: 145, two: [100, 190] },
   prop: 234,
+  screen: {
+    x: 171, y: 11, w: 130, h: 88,
+  },
 };
 
 export const SCENES: Record<string, SceneData> = {

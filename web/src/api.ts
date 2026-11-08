@@ -39,6 +39,30 @@ export async function fetchRundown(channelId: string): Promise<Rundown | null> {
   return res.json();
 }
 
+export interface BoardRow {
+  label: string;
+  value: string;
+  /** F1 constructor id, for the row's colour stripe. */
+  team?: string;
+}
+
+/** Real data for a studio board: the football table, the F1 standings. */
+export interface Board {
+  title: string;
+  rows: BoardRow[];
+  /** Attribution the data's terms require, e.g. football-data.org's. */
+  credit: string;
+}
+
+/** A channel's studio board, or null if it has none (or the demo). */
+export async function fetchBoard(channelId: string): Promise<Board | null> {
+  if (DEMO) return null;
+  const url = `/media/boards/${encodeURIComponent(channelId)}.json`;
+  const res = await fetch(url, { cache: 'no-cache' });
+  if (!res.ok) return null;
+  return res.json();
+}
+
 // Demo segments already carry a bundled audio URL.
 export const mediaUrl = (path: string) => (DEMO ? path : `/media/${path}`);
 

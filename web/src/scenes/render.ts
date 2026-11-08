@@ -1,6 +1,11 @@
+import type { Board } from '../api';
+import type { WeatherPlace } from '../rundown';
+import { artRects } from './art';
 import {
   type Rect, SCENES, type SceneData, type Text,
 } from './data';
+import { type Intro, introGraphics } from './ident';
+import { weatherMap } from './weathermap';
 import {
   facingFor, handRects, type Look, presenterRects, seatsFor,
 } from './presenters';
@@ -131,21 +136,38 @@ export interface Extras {
   season?: Season | null;
   /** Wall-clock time, for the studio clocks. */
   date?: Date;
+  /** Channel colour, for story art. */
+  accent?: string;
+  /** Story icon to show on the studio screen. */
+  art?: string | null;
+  /** Forecast to map on the studio screen (takes the place of story art). */
+  weather?: WeatherPlace[] | null;
+  /** Real data for the studio board. */
+  board?: Board | null;
+}
+
+/** What the studio screen shows instead of the show's own backdrop, if anything. */
+function screenGraphics(scene: SceneData, { art, weather, accent }: Extras) {
+  if (!scene.screen) return { rects: [], texts: [] };
+  if (weather?.length) return weatherMap(scene.screen, weather);
+  if (art) return { rects: artRects(art, scene.screen, accent ?? '#f4f1e6'), texts: [] };
+  return { rects: [], texts: [] };
 }
 
 /**
  * Every rect of a studio dressed for a show with this team at the desk, in
- * draw order: under the set, set (with clock hands), tint, the set's lights,
- * the show's backdrop, seasonal dressing, presenters, desk (with any
- * seasonal prop), hands.
+ * draw order: under the set, set (with clock hands and board data), tint,
+ * the set's lights, the show's backdrop, seasonal dressing, the screen
+ * (story art or weather), presenters, desk (with any seasonal prop), hands.
  */
 export function sceneLayers(
   scene: SceneData,
   team: Look[],
   f: FrameState,
   show: Show = {},
-  { season, date }: Extras = {},
+  extras: Extras = {},
 ): Rect[][] {
+  const { season, date, board } = extras;
   const seated = team.slice(0, 2);
   const xs = seatsFor(scene.seats, seated.length);
   const bodies = seated.flatMap((look, seat) => presenterRects(
@@ -164,11 +186,34 @@ export function sceneLayers(
     ? [[0, 0, WIDTH, HEIGHT, show.tint[0], undefined, show.tint[1]]]
     : [];
   const lights = show.tint ? scene.back.filter(isLight) : [];
-  const back = scene.clocks && date ? [...scene.back, ...clocksAt(scene.clocks, date)] : scene.back;
+  const back = [
+    ...scene.back,
+    ...(scene.clocks && date ? clocksAt(scene.clocks, date) : []),
+    ...(scene.board && board ? scene.board(board).rects : []),
+  ];
   const front = season?.prop ? [...scene.front, ...season.prop(scene.prop)] : scene.front;
   return [
     show.under ?? [], back, tint, lights, show.back ?? [], season?.back ?? [],
-    bodies, front, hands,
+    screenGraphics(scene, extras).rects, bodies, front, hands,
+  ];
+}
+
+/**
+ * The on-set text: the show's (or studio's), with board data and the
+ * screen's. Text on the screen is hidden while story art or the weather
+ * covers it.
+ */
+export function sceneTexts(scene: SceneData, show: Show, extras: Extras = {}): Text[] {
+  const boardGfx = scene.board && extras.board ? scene.board(extras.board) : null;
+  const replaced = new Set((boardGfx?.replaces ?? []).map(([x, y]) => `${x},${y}`));
+  const screen = screenGraphics(scene, extras);
+  const s = scene.screen;
+  const covered = ([x, y]: Text) => screen.rects.length > 0 && !!s
+    && x >= s.x && x < s.x + s.w && y >= s.y && y <= s.y + s.h;
+  return [
+    ...(show.texts ?? scene.texts).filter((t) => !replaced.has(`${t[0]},${t[1]}`) && !covered(t)),
+    ...(boardGfx?.texts ?? []),
+    ...screen.texts,
   ];
 }
 
@@ -185,13 +230,21 @@ function todaysSeason(date: Date): Season | null {
   return season;
 }
 
+export interface FrameOptions extends Omit<Extras, 'season' | 'date'> {
+  /** The show the set is dressed for (a shift id). */
+  show?: string | null;
+  shot?: Shot;
+  /** A channel ident or sting playing over the studio. */
+  intro?: Intro | null;
+}
+
 function drawScene(
   ctx: CanvasRenderingContext2D,
   scene: SceneData,
   team: Look[],
   f: FrameState,
   show: Show,
-  shot: Shot,
+  { shot = WIDE, intro, ...extras }: FrameOptions,
 ) {
   ctx.fillStyle = scene.bg;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
@@ -202,10 +255,15 @@ function drawScene(
     ctx.setTransform(ZOOM, 0, 0, ZOOM, -ox * ZOOM, -oy * ZOOM);
   }
   const date = new Date();
-  sceneLayers(scene, team, f, show, { season: todaysSeason(date), date })
-    .forEach((layer) => drawRects(ctx, layer, f));
-  drawTexts(ctx, show.texts ?? scene.texts);
+  const all: Extras = { ...extras, season: todaysSeason(date), date };
+  sceneLayers(scene, team, f, show, all).forEach((layer) => drawRects(ctx, layer, f));
+  drawTexts(ctx, sceneTexts(scene, show, all));
   ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (intro) {
+    const g = introGraphics(intro);
+    drawRects(ctx, g.rects, f);
+    drawTexts(ctx, g.texts);
+  }
 }
 
 function drawStatic(ctx: CanvasRenderingContext2D) {
@@ -246,15 +304,14 @@ export function drawFrame(
   sceneId: string | null,
   team: Look[],
   f: FrameState,
-  showId?: string | null,
-  shot: Shot = WIDE,
+  opts: FrameOptions = {},
 ) {
   ctx.imageSmoothingEnabled = false;
   const scene = sceneId ? SCENES[sceneId] : undefined;
   if (f.static) {
     drawStatic(ctx);
   } else if (scene) {
-    drawScene(ctx, scene, team, f, showFor(sceneId ?? '', showId), shot);
+    drawScene(ctx, scene, team, f, showFor(sceneId ?? '', opts.show), opts);
   } else {
     drawTestCard(ctx, f);
   }
