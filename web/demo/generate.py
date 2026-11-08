@@ -27,8 +27,12 @@ from kokoro_onnx import Kokoro
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent.parent / "tts"))
 from audio import add_room_tone, assemble, encode_mp3, plan_pauses, trim_silence  # noqa: E402
+from jingle import jingle  # noqa: E402
+
+import numpy as np  # noqa: E402
 
 BASE_PAUSE_S = 0.3  # matches the server's gap_ms
+INTRO_GAP_S = 0.3  # matches tts/app.py
 
 
 def lang_for(voice: str) -> str:
@@ -75,11 +79,19 @@ def main() -> None:
                 voices.append(p["voice"])
                 texts.append(text)
             audio, starts = assemble(chunks, plan_pauses(voices, texts, BASE_PAUSE_S))
+            # Like the server: the show opens with the channel ident, the rest with a sting.
+            style = "ident" if seg["type"] == "headlines" else "sting"
+            lead = np.concatenate([
+                jingle(style, channel["id"]), np.zeros(int(24_000 * INTRO_GAP_S), dtype=np.float32),
+            ])
+            audio = np.concatenate([lead, audio])
+            intro_s = round(len(lead) / 24_000, 3)
+            starts = [round(s + intro_s, 3) for s in starts]
             audio = add_room_tone(audio, seed=zlib.crc32("\n".join(texts).encode("utf-8")))
             (out / "audio" / f"{seg['id']}.mp3").write_bytes(encode_mp3(audio))
             duration = len(audio) / 24_000
             spoken_s += duration
-            result[seg["id"]] = {"durationS": round(duration, 3), "lineStarts": starts}
+            result[seg["id"]] = {"durationS": round(duration, 3), "lineStarts": starts, "introS": intro_s}
             print(f"{seg['id']}: {duration:.1f}s")
 
     timings.write_text(json.dumps(result, indent=2) + "\n")

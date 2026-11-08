@@ -9,16 +9,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"math"
+	"net/http"
 	"path/filepath"
 	"time"
 
 	"github.com/anthropics/anthropic-sdk-go"
 	"github.com/anthropics/anthropic-sdk-go/option"
 
+	"github.com/camwhite18/pixelartnews/server/internal/boards"
 	"github.com/camwhite18/pixelartnews/server/internal/config"
 	"github.com/camwhite18/pixelartnews/server/internal/rundown"
 	"github.com/camwhite18/pixelartnews/server/internal/shifts"
 	"github.com/camwhite18/pixelartnews/server/internal/store"
+	"github.com/camwhite18/pixelartnews/server/internal/weather"
 )
 
 type Pipeline struct {
@@ -27,10 +31,15 @@ type Pipeline struct {
 	Claude *anthropic.Client
 	TTS    *TTSClient
 	Log    *slog.Logger
+	// HTTP fetches data for weather segments and studio boards.
+	HTTP *http.Client
 }
 
 func New(cfg config.Config, st *store.Store, log *slog.Logger) *Pipeline {
-	p := &Pipeline{Cfg: cfg, Store: st, TTS: NewTTSClient(cfg.TTSURL), Log: log}
+	p := &Pipeline{
+		Cfg: cfg, Store: st, TTS: NewTTSClient(cfg.TTSURL), Log: log,
+		HTTP: &http.Client{Timeout: 20 * time.Second},
+	}
 	if cfg.AnthropicAPIKey != "" {
 		opts := []option.RequestOption{option.WithAPIKey(cfg.AnthropicAPIKey), option.WithMaxRetries(3)}
 		if cfg.AnthropicBaseURL != "" {
@@ -71,6 +80,7 @@ func (p *Pipeline) Run(ctx context.Context, channelID string, force bool) (statu
 	if err != nil {
 		return "", err
 	}
+	p.refreshBoard(ctx, channelID)
 
 	added, err := p.Ingest(ctx, channelID)
 	if err != nil {
@@ -151,7 +161,8 @@ func (p *Pipeline) produce(ctx context.Context, ch store.Channel, slot shifts.Sl
 	onSet := ch
 	onSet.Presenters = team
 
-	script, sources, err := p.WriteScript(ctx, onSet, slot, clusters)
+	wx := p.forecast(ctx, ch.ID, slot.ID)
+	script, sources, err := p.WriteScript(ctx, onSet, slot, clusters, wx)
 	if err != nil {
 		return nil, fmt.Errorf("script: %w", err)
 	}
@@ -161,7 +172,7 @@ func (p *Pipeline) produce(ctx context.Context, ch store.Channel, slot shifts.Sl
 
 	var segs []rundown.Segment
 	for _, s := range script {
-		seg, err := p.voice(ctx, ch.ID, slot.ID, s, sources, team)
+		seg, err := p.voice(ctx, ch.ID, slot.ID, s, sources, team, wx)
 		if err != nil {
 			return nil, err
 		}
@@ -170,7 +181,7 @@ func (p *Pipeline) produce(ctx context.Context, ch store.Channel, slot shifts.Sl
 	return segs, nil
 }
 
-func (p *Pipeline) voice(ctx context.Context, channelID, show string, s ScriptSegment, sources []rundown.Source, team []store.Presenter) (rundown.Segment, error) {
+func (p *Pipeline) voice(ctx context.Context, channelID, show string, s ScriptSegment, sources []rundown.Source, team []store.Presenter, wx []weather.Day) (rundown.Segment, error) {
 	byID := map[string]store.Presenter{}
 	var onSet []string
 	for _, pr := range team {
@@ -182,7 +193,12 @@ func (p *Pipeline) voice(ctx context.Context, channelID, show string, s ScriptSe
 		pr := byID[l.Speaker]
 		lines = append(lines, TTSLine{Text: l.Text, Voice: pr.Voice, Speed: pr.Speed})
 	}
-	res, err := p.TTS.Synthesize(ctx, lines)
+	// The show opens with the channel's ident; each story with a sting.
+	intro := TTSIntro{Style: "sting", Seed: channelID}
+	if s.Type == rundown.TypeHeadlines {
+		intro.Style = "ident"
+	}
+	res, err := p.TTS.Synthesize(ctx, lines, intro)
 	if err != nil {
 		return rundown.Segment{}, err
 	}
@@ -196,6 +212,11 @@ func (p *Pipeline) voice(ctx context.Context, channelID, show string, s ScriptSe
 		if i < len(res.LineStarts) {
 			s.Lines[i].StartS = res.LineStarts[i]
 		}
+	}
+	s.Art = ValidArt(s.Art)
+	var places []rundown.WeatherPlace
+	if s.Type == rundown.TypeWeather {
+		places = weatherPlaces(wx)
 	}
 	scriptJSON, _ := json.Marshal(s)
 	if err := p.Store.SaveSegment(ctx, id, channelID, s.Type, scriptJSON, key, res.DurationS); err != nil {
@@ -211,6 +232,9 @@ func (p *Pipeline) voice(ctx context.Context, channelID, show string, s ScriptSe
 		Ticker:     s.Ticker,
 		Presenters: onSet,
 		Show:       show,
+		Art:        s.Art,
+		IntroS:     res.IntroS,
+		Weather:    places,
 		Lines:      s.Lines,
 		Sources:    SourcesFor(s, sources),
 	}, nil
@@ -220,4 +244,59 @@ func newSegmentID() string {
 	b := make([]byte, 6)
 	_, _ = rand.Read(b)
 	return "seg_" + hex.EncodeToString(b)
+}
+
+// forecast fetches today's weather for the weather channel's breakfast
+// show. A failed fetch only costs the weather segment, so it is logged and
+// the show goes on without it.
+func (p *Pipeline) forecast(ctx context.Context, channelID, showID string) []weather.Day {
+	if channelID != p.Cfg.WeatherChannel || showID != "breakfast" {
+		return nil
+	}
+	days, err := weather.Fetch(ctx, p.HTTP, p.Cfg.WeatherURL, weather.UK, p.Cfg.Location)
+	if err != nil {
+		p.Log.Warn("weather unavailable", "err", err)
+		return nil
+	}
+	return days
+}
+
+func weatherPlaces(days []weather.Day) []rundown.WeatherPlace {
+	out := make([]rundown.WeatherPlace, 0, len(days))
+	for _, d := range days {
+		out = append(out, rundown.WeatherPlace{
+			Place: d.Place.ID, Code: d.Code, MaxC: math.Round(d.MaxC), MinC: math.Round(d.MinC),
+		})
+	}
+	return out
+}
+
+// refreshBoard updates a channel's studio board (the football table or the
+// F1 standings) when it is older than BoardsTTL. Boards are decoration, so
+// failures are logged and the old board stays up.
+func (p *Pipeline) refreshBoard(ctx context.Context, channelID string) {
+	if boards.Fresh(p.Cfg.MediaDir, channelID, p.Cfg.BoardsTTL) {
+		return
+	}
+	var (
+		b   boards.Board
+		err error
+	)
+	switch channelID {
+	case "football":
+		if p.Cfg.FootballDataKey == "" {
+			return
+		}
+		b, err = boards.FootballTable(ctx, p.HTTP, p.Cfg.FootballDataURL, p.Cfg.FootballDataKey, p.Cfg.FootballCompetition)
+	case "f1":
+		b, err = boards.F1Drivers(ctx, p.HTTP, p.Cfg.JolpicaURL, time.Now().In(p.Cfg.Location).Year())
+	default:
+		return
+	}
+	if err == nil {
+		err = boards.Write(p.Cfg.MediaDir, channelID, b)
+	}
+	if err != nil {
+		p.Log.Warn("board not updated", "channel", channelID, "err", err)
+	}
 }

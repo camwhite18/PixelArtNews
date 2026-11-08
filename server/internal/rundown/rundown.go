@@ -23,9 +23,30 @@ type Segment struct {
 	// Presenters on set for this segment (the shift's team), in seat order.
 	Presenters []string `json:"presenters,omitempty"`
 	// Show is the shift this segment was made for; studios dress their set for it.
-	Show    string   `json:"show,omitempty"`
-	Lines   []Line   `json:"lines"`
-	Sources []Source `json:"sources"`
+	Show string `json:"show,omitempty"`
+	// Art is a pixel icon for the story (one of ArtIcons), shown on the big screen.
+	Art string `json:"art,omitempty"`
+	// IntroS is how long the channel ident or sting at the start of the audio runs.
+	IntroS float64 `json:"introS,omitempty"`
+	// Weather is the forecast for the map during a weather segment.
+	Weather []WeatherPlace `json:"weather,omitempty"`
+	Lines   []Line         `json:"lines"`
+	Sources []Source       `json:"sources"`
+}
+
+// WeatherPlace is one place on the weather map.
+type WeatherPlace struct {
+	Place string  `json:"place"`
+	Code  int     `json:"code"`
+	MaxC  float64 `json:"maxC"`
+	MinC  float64 `json:"minC"`
+}
+
+// ArtIcons are the story icons the studios can draw; the schema lists the same.
+var ArtIcons = []string{
+	"globe", "ballot", "gavel", "money", "chart", "rocket", "planet", "flask",
+	"chip", "phone", "robot", "gamepad", "heart", "leaf", "storm", "fire",
+	"trophy", "ball", "car", "flag", "ufo", "ghost", "film", "music",
 }
 
 // End is when the segment stops airing.
@@ -55,4 +76,5 @@ const (
 	TypeBreaking  = "breaking"
 	TypeAdvert    = "advert"
 	TypeIdle      = "idle"
+	TypeWeather   = "weather"
 )

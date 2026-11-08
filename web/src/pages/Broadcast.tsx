@@ -13,6 +13,8 @@ import { href, navigate } from '../router';
 import {
   captionAt, clockTime, segmentLabel, startMs, upNext,
 } from '../rundown';
+import type { IntroTiming } from '../components/Studio';
+import { useBoard } from '../useBoard';
 import { useRundown } from '../useRundown';
 
 const DEFAULT_TICKER = 'Pixel Art News · 24/7 AI news channels';
@@ -51,6 +53,7 @@ export function Broadcast({
   const index = channels.findIndex((c) => c.id === channelId);
   const channel = channels[index] ?? null;
   const rundown = useRundown(channelId);
+  const board = useBoard(channelId);
   const [np, setNp] = useState<NowPlaying>({
     segment: null, line: null, offsetS: 0, speaker: null, blocked: false,
   });
@@ -123,6 +126,15 @@ export function Broadcast({
   const speakerName = channel.presenters
     .find((p) => p.id === line?.speaker)?.name.split(' ')
     .find((w) => !/^(Prof|Dr)\.?$/.test(w)) ?? '';
+  // The jingle at the start of the segment: the show opens with the channel
+  // ident, each story with a sting.
+  const intro: IntroTiming | null = seg?.introS ? {
+    style: seg.type === 'headlines' ? 'ident' : 'sting',
+    startMs: startMs(seg),
+    lengthMs: seg.introS * 1000,
+    name: channel.name,
+  } : null;
+  const ticker = `${seg?.ticker || DEFAULT_TICKER}${board ? `  ·  ${board.credit}` : ''}`;
   const captionText = seg && np.line !== null
     ? captionAt(seg, np.line, np.offsetS, CAPTION_CHARS - speakerName.length - 2)
     : '';
@@ -149,6 +161,11 @@ export function Broadcast({
           talking={seat}
           level={() => player.level()}
           shot={shotFor(np.line, seat)}
+          accent={channel.accent}
+          art={seg?.type === 'story' ? seg.art : null}
+          weather={seg?.type === 'weather' ? seg.weather : null}
+          board={board}
+          intro={intro}
           staticUntil={staticUntil}
           label={`${channel.name} studio`}
         />
@@ -267,8 +284,8 @@ export function Broadcast({
           <span className="ticker-ch">{channel.name}</span>
           <div className="ticker-track">
             <div className="ticker-run">
-              <span>{seg?.ticker || DEFAULT_TICKER}</span>
-              <span aria-hidden="true">{seg?.ticker || DEFAULT_TICKER}</span>
+              <span>{ticker}</span>
+              <span aria-hidden="true">{ticker}</span>
             </div>
           </div>
         </div>

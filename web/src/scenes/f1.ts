@@ -1,6 +1,9 @@
 // The F1 studio: a pit-wall set with a timing tower, a view onto the track,
 // a tyre stack and a helmet on the desk, and how each show dresses the track.
-import type { Rect, SceneData, Text } from './data';
+import type { Board } from '../api';
+import type {
+  BoardGraphics, Rect, SceneData, Text,
+} from './data';
 import {
   bands, type Box, clip, disc, LIGHT, skyline, stars,
 } from './draw';
@@ -80,6 +83,36 @@ function tyres(): Rect[] {
 
 const DAY_SKY = bands(SKY, ['#3a8ae0', '#6ab0f4', '#a8d4f8']);
 
+const TEAM_COLOURS: Record<string, string> = {
+  mclaren: '#ff8a1f',
+  red_bull: '#2a5cff',
+  ferrari: RED,
+  mercedes: '#2fd6c8',
+  aston_martin: '#2f8a3a',
+  alpine: '#ff6fcf',
+  williams: '#4aa3ff',
+  rb: '#6c8cff',
+  sauber: '#a9a6b8',
+  audi: '#a9a6b8',
+  haas: PAPER,
+  cadillac: '#ffd166',
+};
+
+/** The real drivers' championship on the timing tower: codes and points. */
+export function f1Board(b: Board): BoardGraphics {
+  const rects: Rect[] = [[12, 36, 48, 62, INK]];
+  const texts: Text[] = [[14, 33, 8, PAPER, b.title.slice(0, 8)]];
+  b.rows.slice(0, 8).forEach((row, i) => {
+    const y = 37 + i * 7;
+    rects.push([14, y, 2, 6, TEAM_COLOURS[row.team ?? ''] ?? '#5a5a6a']);
+    texts.push(
+      [18, y + 6, 8, '#e9e6dc', row.label.slice(0, 3)],
+      [51, y + 6, 8, i === 0 ? '#ffd166' : '#a9a6b8', row.value, 'middle'],
+    );
+  });
+  return { rects, texts, replaces: [[14, 33]] };
+}
+
 export const f1Scene: SceneData = {
   bg: '#1a1a22',
   back: [
@@ -107,6 +140,8 @@ export const f1Scene: SceneData = {
   texts: [[14, 33, 8, PAPER, 'LAP 42']],
   seats: { one: 138, two: [92, 180] },
   prop: 248,
+  screen: VIEW,
+  board: f1Board,
 };
 
 // ---------- Shows ----------

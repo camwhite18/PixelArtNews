@@ -74,7 +74,8 @@ describe('presenter sprites', () => {
   it('opens only the speaking presenter\'s mouth', () => {
     const scene = SCENES.world;
     const f = { time: 0, talking: 1, mouthOpen: true };
-    const BODIES = 6; // under, set, tint, lights, show backdrop, season, then presenters
+    // under, set, tint, lights, show backdrop, season, screen, then presenters
+    const BODIES = 7;
     const bodies = sceneLayers(scene, [human, DEFAULT_LOOK], f)[BODIES];
     const [x0, x1] = seatsFor(scene.seats, 2);
     const open = bodies.filter(([, y, w, h]) => y === 81 && h === 4 && w === 6);
@@ -128,7 +129,7 @@ describe('seasons', () => {
   it('pins a poppy on human presenters only', () => {
     const date = day(11, 7);
     const count = (team: typeof human[]) => {
-      const bodies = sceneLayers(SCENES.world, team, frame, {}, { season: seasonAt(date) })[6];
+      const bodies = sceneLayers(SCENES.world, team, frame, {}, { season: seasonAt(date) })[7];
       return bodies.filter((r) => r[4] === '#e3262f').length;
     };
     expect(count([alien, DEFAULT_LOOK])).toBe(1);

@@ -365,6 +365,7 @@ export const demoChannels: Channel[] = [
 interface Timing {
   durationS: number;
   lineStarts: number[];
+  introS?: number;
 }
 const timed = timings as Record<string, Timing>;
 
@@ -387,7 +388,10 @@ export function demoRundown(channelId: string, now: number): Rundown | null {
       headline: s.headline,
       ticker: s.ticker,
       presenters: s.presenters,
-      show: s.id.slice(channel.id.length + 1),
+      show: 'show' in s ? s.show : s.id.slice(channel.id.length + 1),
+      art: 'art' in s ? s.art as Segment['art'] : undefined,
+      weather: 'weather' in s ? s.weather : undefined,
+      introS: t.introS,
       durationS: t.durationS,
       audio: audio[`../demo/out/audio/${s.id}.mp3`],
       lines: s.lines.map(([speaker, text], i) => ({

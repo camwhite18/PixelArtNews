@@ -1,6 +1,9 @@
 // The FOOTBALL studio: a tactics studio with a video wall, the league table
 // and a club scarf, and how each show dresses the video wall.
-import type { Rect, SceneData, Text } from './data';
+import type { Board } from '../api';
+import type {
+  BoardGraphics, Rect, SceneData, Text,
+} from './data';
 import {
   type Box, clip, disc, LIGHT, stars,
 } from './draw';
@@ -74,6 +77,21 @@ function tactics(): Rect[] {
   return rects;
 }
 
+/** The real league table on the studio board: club codes and points. */
+export function footballBoard(b: Board): BoardGraphics {
+  const rects: Rect[] = [[12, 35, 76, 59, '#0a1a10']];
+  const texts: Text[] = [];
+  b.rows.slice(0, 6).forEach((row, i) => {
+    const y = 38 + i * 9;
+    rects.push([15, y, 6, 6, i === 0 ? '#ffd166' : '#2a4a34']);
+    texts.push(
+      [24, y + 6, 8, '#c9e8c0', row.label.slice(0, 4)],
+      [79, y + 6, 8, i === 0 ? '#ffd166' : '#c9e8c0', row.value, 'middle'],
+    );
+  });
+  return { rects, texts };
+}
+
 export const footballScene: SceneData = {
   bg: '#0f2418',
   back: [
@@ -98,6 +116,8 @@ export const footballScene: SceneData = {
   texts: [[15, 32, 8, '#06140c', 'TABLE']],
   seats: { one: 138, two: [96, 186] },
   prop: 236,
+  screen: WALL,
+  board: footballBoard,
 };
 
 // ---------- Shows ----------
