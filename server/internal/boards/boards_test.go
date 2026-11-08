@@ -34,7 +34,7 @@ func TestFootballTable(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(b.Rows) != 3 || b.Rows[0] != (Row{Label: "ARS", Value: "31"}) || b.Rows[2].Label != "Spurs" ||
-		b.Credit != FootballCredit {
+		b.Credit != FootballAttribution {
 		t.Fatalf("got %+v", b)
 	}
 }

@@ -27,8 +27,8 @@ const (
 	JolpicaURL      = "https://api.jolpi.ca"
 	UserAgent       = "PixelArtNews/1.0 (personal, non-commercial; github.com/camwhite18/PixelArtNews)"
 
-	FootballCredit = "Football data provided by the Football-Data.org API"
-	F1Credit       = "F1 standings from the Jolpica-F1 API"
+	FootballAttribution = "Football data provided by the Football-Data.org API"
+	F1Attribution       = "F1 standings from the Jolpica-F1 API"
 
 	// Rows that fit each studio's board.
 	FootballRows = 6
@@ -94,7 +94,7 @@ func FootballTable(ctx context.Context, client *http.Client, base, key, competit
 	if err := get(ctx, client, url, map[string]string{"X-Auth-Token": key}, &res); err != nil {
 		return Board{}, fmt.Errorf("football-data: %w", err)
 	}
-	b := Board{Title: "TABLE", Credit: FootballCredit, UpdatedAt: time.Now().UTC()}
+	b := Board{Title: "TABLE", Credit: FootballAttribution, UpdatedAt: time.Now().UTC()}
 	for _, s := range res.Standings {
 		if s.Type != "TOTAL" {
 			continue
@@ -146,7 +146,7 @@ func F1Drivers(ctx context.Context, client *http.Client, base string, year int) 
 		if len(lists) == 0 || len(lists[0].DriverStandings) == 0 {
 			continue
 		}
-		b := Board{Title: "DRIVERS", Credit: F1Credit, UpdatedAt: time.Now().UTC()}
+		b := Board{Title: "DRIVERS", Credit: F1Attribution, UpdatedAt: time.Now().UTC()}
 		for _, d := range lists[0].DriverStandings {
 			if len(b.Rows) == F1Rows {
 				break
