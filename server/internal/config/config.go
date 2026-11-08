@@ -29,6 +29,18 @@ type Config struct {
 
 	// Location is the time zone presenter shifts follow (TIMEZONE).
 	Location *time.Location
+
+	// WeatherChannel gets a weather segment at breakfast (Open-Meteo).
+	WeatherChannel string
+	WeatherURL     string
+
+	// Studio boards: the football table needs a free football-data.org key;
+	// without one the board stays decorative. F1 standings need no key.
+	FootballDataKey     string
+	FootballDataURL     string
+	FootballCompetition string
+	JolpicaURL          string
+	BoardsTTL           time.Duration
 }
 
 func Load() (Config, error) {
@@ -46,6 +58,15 @@ func Load() (Config, error) {
 		BreakingInterval: dur("BREAKING_INTERVAL", 15*time.Minute),
 		ScheduleHorizon:  dur("SCHEDULE_HORIZON", 3*time.Hour),
 		RunOnStart:       boolean("RUN_ON_START", true),
+
+		WeatherChannel: env("WEATHER_CHANNEL", "world"),
+		WeatherURL:     env("WEATHER_URL", "https://api.open-meteo.com/v1/forecast"),
+
+		FootballDataKey:     os.Getenv("FOOTBALL_DATA_KEY"),
+		FootballDataURL:     env("FOOTBALL_DATA_URL", "https://api.football-data.org"),
+		FootballCompetition: env("FOOTBALL_COMPETITION", "PL"),
+		JolpicaURL:          env("JOLPICA_URL", "https://api.jolpi.ca"),
+		BoardsTTL:           dur("BOARDS_TTL", 3*time.Hour),
 	}
 	if c.DatabaseURL == "" {
 		return c, fmt.Errorf("DATABASE_URL is required")

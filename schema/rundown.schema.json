@@ -15,6 +15,17 @@
     }
   },
   "$defs": {
+    "weatherPlace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["place", "code", "maxC", "minC"],
+      "properties": {
+        "place": { "type": "string", "description": "Place id, e.g. \"london\"." },
+        "code": { "type": "integer", "description": "WMO weather code for the day." },
+        "maxC": { "type": "number" },
+        "minC": { "type": "number" }
+      }
+    },
     "segment": {
       "type": "object",
       "additionalProperties": false,
@@ -23,7 +34,7 @@
         "id": { "type": "string" },
         "type": {
           "type": "string",
-          "enum": ["headlines", "story", "link", "recap", "breaking", "advert", "idle"]
+          "enum": ["headlines", "story", "link", "recap", "breaking", "advert", "idle", "weather"]
         },
         "start": { "type": "string", "format": "date-time", "description": "Absolute UTC start time." },
         "durationS": { "type": "number", "minimum": 0, "description": "Measured from the encoded audio, not estimated." },
@@ -39,6 +50,17 @@
         "show": {
           "type": "string",
           "description": "The show (presenter shift) this segment was made for, e.g. \"breakfast\"; studios dress their set for it."
+        },
+        "art": {
+          "type": "string",
+          "description": "A pixel icon for the story, shown on the studio's big screen while it airs.",
+          "enum": ["globe", "ballot", "gavel", "money", "chart", "rocket", "planet", "flask", "chip", "phone", "robot", "gamepad", "heart", "leaf", "storm", "fire", "trophy", "ball", "car", "flag", "ufo", "ghost", "film", "music"]
+        },
+        "introS": { "type": "number", "minimum": 0, "description": "Seconds of channel ident or sting at the start of the audio, before the first line." },
+        "weather": {
+          "type": "array",
+          "description": "Forecast shown on the weather map during a weather segment.",
+          "items": { "$ref": "#/$defs/weatherPlace" }
         },
         "lines": {
           "type": "array",

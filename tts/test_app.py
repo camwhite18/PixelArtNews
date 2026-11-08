@@ -39,3 +39,22 @@ def test_synthesize_rejects_unknown_voice(monkeypatch):
     with client(monkeypatch) as c:
         r = c.post("/synthesize", json={"lines": [{"text": "Hello.", "voice": "zz_nope"}]})
     assert r.status_code == 400
+
+
+def test_synthesize_opens_with_a_jingle_and_shifts_line_starts(monkeypatch):
+    with client(monkeypatch) as c:
+        r = c.post("/synthesize", json={
+            "lines": [{"text": "Hello.", "voice": "bf_emma"}],
+            "intro": "ident", "intro_seed": "world",
+        })
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert 1.2 < body["intro_s"] < 2.0
+    assert body["line_starts"] == [body["intro_s"]]
+    assert abs(body["duration_s"] - (body["intro_s"] + 1.0)) < 0.01
+
+
+def test_synthesize_rejects_unknown_intro(monkeypatch):
+    with client(monkeypatch) as c:
+        r = c.post("/synthesize", json={"lines": [{"text": "Hi.", "voice": "bf_emma"}], "intro": "fanfare"})
+    assert r.status_code == 422

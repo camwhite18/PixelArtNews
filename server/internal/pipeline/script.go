@@ -11,7 +11,11 @@ import (
 	"github.com/camwhite18/pixelartnews/server/internal/rundown"
 	"github.com/camwhite18/pixelartnews/server/internal/shifts"
 	"github.com/camwhite18/pixelartnews/server/internal/store"
+	"github.com/camwhite18/pixelartnews/server/internal/weather"
 )
+
+// weatherSource is how the forecast is cited; Open-Meteo's data is CC BY 4.0.
+var weatherSource = rundown.Source{ID: "wx", Outlet: "Open-Meteo (CC BY 4.0)", URL: "https://open-meteo.com/"}
 
 // houseStyle is shared by every channel and cached by the API.
 const houseStyle = `You write scripts for Pixel Art News, a 24/7 pixel-art TV news channel.
@@ -32,11 +36,13 @@ Rules:
 
 // ScriptSegment is what Claude returns per segment, before voicing.
 type ScriptSegment struct {
-	Type     string         `json:"type"`
-	Kicker   string         `json:"kicker"`
-	Headline string         `json:"headline"`
-	Ticker   string         `json:"ticker"`
-	Lines    []rundown.Line `json:"lines"`
+	Type     string `json:"type"`
+	Kicker   string `json:"kicker"`
+	Headline string `json:"headline"`
+	Ticker   string `json:"ticker"`
+	// Art is the story's pixel icon for the studio screen (rundown.ArtIcons).
+	Art   string         `json:"art"`
+	Lines []rundown.Line `json:"lines"`
 }
 
 type scriptResponse struct {
@@ -74,7 +80,26 @@ func buildSources(clusters []Cluster, maxStories, perStory int) sourceSet {
 	return sourceSet{list: list, text: b.String()}
 }
 
-func outputSchema(speakers []string) map[string]any {
+// segmentTypes are the segment types a script may contain.
+func segmentTypes(withWeather bool) []string {
+	types := []string{rundown.TypeHeadlines, rundown.TypeStory}
+	if withWeather {
+		types = append(types, rundown.TypeWeather)
+	}
+	return types
+}
+
+// ValidArt keeps an icon only if the studios can draw it.
+func ValidArt(icon string) string {
+	for _, a := range rundown.ArtIcons {
+		if a == icon {
+			return icon
+		}
+	}
+	return ""
+}
+
+func outputSchema(speakers, types []string) map[string]any {
 	return map[string]any{
 		"type":                 "object",
 		"additionalProperties": false,
@@ -85,12 +110,16 @@ func outputSchema(speakers []string) map[string]any {
 				"items": map[string]any{
 					"type":                 "object",
 					"additionalProperties": false,
-					"required":             []string{"type", "kicker", "headline", "ticker", "lines"},
+					"required":             []string{"type", "kicker", "headline", "ticker", "art", "lines"},
 					"properties": map[string]any{
-						"type":     map[string]any{"type": "string", "enum": []string{rundown.TypeHeadlines, rundown.TypeStory}},
+						"type":     map[string]any{"type": "string", "enum": types},
 						"kicker":   map[string]any{"type": "string", "description": "Lower-third tab in capitals, at most 12 characters, e.g. TOP STORY"},
 						"headline": map[string]any{"type": "string", "description": "Lower-third headline, at most 60 characters"},
 						"ticker":   map[string]any{"type": "string", "description": "One short ticker line"},
+						"art": map[string]any{
+							"type": "string", "enum": rundown.ArtIcons,
+							"description": "The pixel icon that best fits the story, shown on the studio's big screen (for headlines, the top story)",
+						},
 						"lines": map[string]any{
 							"type": "array",
 							"items": map[string]any{
@@ -121,12 +150,19 @@ func personaPrompt(ch store.Channel) string {
 }
 
 // WriteScript asks Claude for this hour's headlines and story packages,
-// presented by the team in ch.Presenters during the given shift.
-func (p *Pipeline) WriteScript(ctx context.Context, ch store.Channel, slot shifts.Slot, clusters []Cluster) ([]ScriptSegment, []rundown.Source, error) {
+// presented by the team in ch.Presenters during the given shift, plus a
+// weather segment when a forecast is given.
+func (p *Pipeline) WriteScript(ctx context.Context, ch store.Channel, slot shifts.Slot, clusters []Cluster, wx []weather.Day) ([]ScriptSegment, []rundown.Source, error) {
 	if p.Claude == nil {
 		return nil, nil, fmt.Errorf("ANTHROPIC_API_KEY is not set")
 	}
 	src := buildSources(clusters, 5, 3)
+	weatherAsk := ""
+	if len(wx) > 0 {
+		src.list = append(src.list, weatherSource)
+		src.text += fmt.Sprintf("\nToday's UK weather [%s]:\n%s", weatherSource.ID, weather.Summary(wx))
+		weatherAsk = fmt.Sprintf("\n3. One \"weather\" segment of about 30 seconds, right after the headlines: today's UK forecast, using only [%s] and citing it. Say temperatures as words, e.g. \"twelve degrees\".", weatherSource.ID)
+	}
 	var speakers []string
 	for _, pr := range ch.Presenters {
 		speakers = append(speakers, pr.ID)
@@ -139,10 +175,10 @@ Sources for this hour:
 %s
 Write:
 1. One "headlines" segment of about 45 seconds covering the top three to five stories.
-2. One "story" segment of about 60 to 90 seconds for each of the top three stories.
+2. One "story" segment of about 60 to 90 seconds for each of the top three stories.%s
 
 Every line must cite sourceIds from the list above.`,
-		slot.Name, slot.From.In(p.Cfg.Location).Format("15:04"), slot.Until.In(p.Cfg.Location).Format("15:04"), src.text)
+		slot.Name, slot.From.In(p.Cfg.Location).Format("15:04"), slot.Until.In(p.Cfg.Location).Format("15:04"), src.text, weatherAsk)
 
 	msg, err := p.Claude.Messages.New(ctx, anthropic.MessageNewParams{
 		Model:     p.Cfg.ModelMain,
@@ -153,7 +189,7 @@ Every line must cite sourceIds from the list above.`,
 		},
 		Messages: []anthropic.MessageParam{anthropic.NewUserMessage(anthropic.NewTextBlock(user))},
 		OutputConfig: anthropic.OutputConfigParam{
-			Format: anthropic.JSONOutputFormatParam{Schema: outputSchema(speakers)},
+			Format: anthropic.JSONOutputFormatParam{Schema: outputSchema(speakers, segmentTypes(len(wx) > 0))},
 		},
 	})
 	if err != nil {

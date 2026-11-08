@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -25,6 +26,9 @@ func sample(now time.Time) Rundown {
 			Ticker:     "Example ticker",
 			Presenters: []string{"margot", "kofi"},
 			Show:       "evening",
+			Art:        "globe",
+			IntroS:     1.6,
+			Weather:    []WeatherPlace{{Place: "london", Code: 61, MaxC: 12, MinC: 7}},
 			Lines: []Line{
 				{Speaker: "margot", Text: "Good afternoon.", SourceIDs: []string{"s1"}},
 				{Speaker: "kofi", Text: "And here's why it matters.", StartS: 3.2, SourceIDs: []string{"s1"}},
@@ -174,5 +178,32 @@ func TestExtendBlocksBeyondTheHorizonIsIgnored(t *testing.T) {
 		if s.ID == "eve" {
 			t.Fatal("a block after the horizon should not air")
 		}
+	}
+}
+
+// The story icons the script may choose must be the ones the schema (and so
+// the web studios) know.
+func TestArtIconsMatchSchema(t *testing.T) {
+	raw, err := os.ReadFile(filepath.Join("..", "..", "..", "schema", "rundown.schema.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		Defs struct {
+			Segment struct {
+				Properties struct {
+					Art struct {
+						Enum []string `json:"enum"`
+					} `json:"art"`
+				} `json:"properties"`
+			} `json:"segment"`
+		} `json:"$defs"`
+	}
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		t.Fatal(err)
+	}
+	got := doc.Defs.Segment.Properties.Art.Enum
+	if strings.Join(got, ",") != strings.Join(ArtIcons, ",") {
+		t.Fatalf("schema art icons %v, Go ArtIcons %v", got, ArtIcons)
 	}
 }

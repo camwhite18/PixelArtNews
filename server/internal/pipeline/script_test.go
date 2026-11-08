@@ -38,3 +38,18 @@ func TestSourcesFor(t *testing.T) {
 		t.Fatalf("got %+v", got)
 	}
 }
+
+func TestSegmentTypesAddWeatherOnlyWithAForecast(t *testing.T) {
+	if got := segmentTypes(false); len(got) != 2 {
+		t.Fatalf("got %v", got)
+	}
+	if got := segmentTypes(true); got[len(got)-1] != rundown.TypeWeather {
+		t.Fatalf("got %v", got)
+	}
+}
+
+func TestValidArt(t *testing.T) {
+	if ValidArt("rocket") != "rocket" || ValidArt("dragon") != "" {
+		t.Fatal("ValidArt should keep known icons only")
+	}
+}
