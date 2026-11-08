@@ -3,6 +3,13 @@ import type { Rect } from './data';
 
 export interface Box { x: number; y: number; w: number; h: number }
 
+/** How shows light a set: a wash of [colour, alpha] over it (see shows.ts). */
+export const LIGHT: Record<'morning' | 'dusk' | 'night', [string, number]> = {
+  morning: ['#ffb36b', 0.1],
+  dusk: ['#5a2a8a', 0.12],
+  night: ['#02040c', 0.42],
+};
+
 /** Cuts rects down to a box (a screen or window), dropping any left empty. */
 export function clip(rects: Rect[], b: Box): Rect[] {
   return rects.flatMap(([x, y, w, h, ...rest]): Rect[] => {

@@ -15,7 +15,13 @@
     "jas": { "voice": "af_sarah", "speed": 1.03 },
     "rex": { "voice": "am_puck", "speed": 1.06 },
     "zorp": { "voice": "am_echo", "speed": 0.92 },
-    "mags": { "voice": "af_aoede", "speed": 0.97 }
+    "mags": { "voice": "af_aoede", "speed": 0.97 },
+    "ruby": { "voice": "af_nova" },
+    "danny": { "voice": "bm_daniel", "speed": 0.97 },
+    "lou": { "voice": "am_eric", "speed": 1.03 },
+    "vee": { "voice": "af_heart", "speed": 1.04 },
+    "rory": { "voice": "am_fenrir" },
+    "tess": { "voice": "bf_lily", "speed": 0.97 }
   },
   "channels": [
     {
@@ -195,6 +201,96 @@
           "lines": [
             ["jas", "Hello, night owls. Jas Kaur here, with sport from time zones that are wide awake."],
             ["jas", "Tonight's scores are samples, so I'll spare you the numbers. Just this once."]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "football",
+      "segments": [
+        {
+          "id": "football-breakfast", "type": "headlines", "kicker": "BREAKFAST", "presenters": ["danny", "lou"],
+          "headline": "Breakfast: today's fixtures",
+          "ticker": "DEMO  ·  Breakfast with Danny and Lou",
+          "lines": [
+            ["danny", "Morning, all. Danny Dugout here, with Lou Offside and a cup of tea that's gone cold already."],
+            ["lou", "Morning, Danny! Five fixtures on the board today, all made up, because this is a demo."],
+            ["danny", "Made-up fixtures, Lou. Best kind. Nobody gets sacked."]
+          ]
+        },
+        {
+          "id": "football-daytime", "type": "story", "kicker": "DAYTIME", "presenters": ["ruby", "lou"],
+          "headline": "Daytime: the tactics board",
+          "ticker": "DEMO  ·  Daytime with Ruby and Lou  ·  Sample story",
+          "lines": [
+            ["ruby", "Good afternoon. I'm Ruby Volley, with Lou Offside, and the tactics board is out."],
+            ["lou", "Our sample team pressed high all game, Ruby, and won the ball back in their opponents' half eleven times."],
+            ["ruby", "Eleven times. Somebody's been doing their running."]
+          ]
+        },
+        {
+          "id": "football-evening", "type": "story", "kicker": "EVENING", "presenters": ["ruby", "danny"],
+          "headline": "Evening: Full Time",
+          "ticker": "DEMO  ·  Full Time with Ruby and Danny",
+          "lines": [
+            ["ruby", "Good evening, and welcome to Full Time. I'm Ruby Volley, and with me is Danny Dugout."],
+            ["danny", "Evening, Ruby. Four live scores up there, and every one of them invented."],
+            ["ruby", "So no complaints about the referee tonight, Danny?"],
+            ["danny", "Give me time, Ruby. Give me time."]
+          ]
+        },
+        {
+          "id": "football-overnight", "type": "story", "kicker": "OVERNIGHT", "presenters": ["lou"],
+          "headline": "Overnight: goals from around the world",
+          "ticker": "DEMO  ·  Overnight with Lou Offside",
+          "lines": [
+            ["lou", "Hello, night owls. Lou Offside here, with goals from time zones that are wide awake."],
+            ["lou", "Tonight's replay is a sample, but that net is still bulging. Beautiful."]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f1",
+      "segments": [
+        {
+          "id": "f1-breakfast", "type": "headlines", "kicker": "BREAKFAST", "presenters": ["rory", "tess"],
+          "headline": "Breakfast: first practice",
+          "ticker": "DEMO  ·  Breakfast with Rory and Tess",
+          "lines": [
+            ["tess", "Good morning. Tess Grid here, with Rory Pitlane, as the first practice session gets going."],
+            ["rory", "Morning, Tess. Just one car out on track so far. Nice and quiet on the radio."],
+            ["tess", "Enjoy it while it lasts, Rory."]
+          ]
+        },
+        {
+          "id": "f1-daytime", "type": "story", "kicker": "DAYTIME", "presenters": ["vee", "tess"],
+          "headline": "Daytime: lap 42",
+          "ticker": "DEMO  ·  Daytime with Vee and Tess  ·  Sample story",
+          "lines": [
+            ["vee", "Good afternoon! Vee Apex here with Tess Grid, and we're on lap forty-two of our sample race."],
+            ["tess", "The leader has been out front since the start, Vee, which, in this demo, is a record."],
+            ["vee", "Every record's a record in a demo, Tess."]
+          ]
+        },
+        {
+          "id": "f1-evening", "type": "story", "kicker": "EVENING", "presenters": ["vee", "rory"],
+          "headline": "Evening: qualifying",
+          "ticker": "DEMO  ·  Qualifying with Vee and Rory",
+          "lines": [
+            ["vee", "Good evening! I'm Vee Apex, with Rory Pitlane, and the sun is setting on qualifying."],
+            ["rory", "Track's cooling down, Vee, so the tyres will take a lap to come in."],
+            ["vee", "And from the engineer's seat?"],
+            ["rory", "Patience. And a very fast final sector."]
+          ]
+        },
+        {
+          "id": "f1-overnight", "type": "story", "kicker": "OVERNIGHT", "presenters": ["tess"],
+          "headline": "Overnight: the night race",
+          "ticker": "DEMO  ·  Overnight with Tess Grid",
+          "lines": [
+            ["tess", "Good evening from the overnight pit wall. Tess Grid here, under the floodlights."],
+            ["tess", "It's a sample night race, so the timings are invented, but the city lights are lovely."]
           ]
         }
       ]
