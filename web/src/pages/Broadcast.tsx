@@ -11,12 +11,14 @@ import {
 import { type NowPlaying, Player } from '../player';
 import { href, navigate } from '../router';
 import {
-  clockTime, segmentLabel, startMs, upNext,
+  captionAt, clockTime, segmentLabel, startMs, upNext,
 } from '../rundown';
 import { useRundown } from '../useRundown';
 
 const DEFAULT_TICKER = 'Pixel Art News · 24/7 AI news channels';
 const CAPTIONS_KEY = 'pxn.captions';
+/** Characters per caption chunk, name included: two lines of the caption box. */
+const CAPTION_CHARS = 72;
 
 /** Whether this viewer last left subtitles on; storage may be unavailable. */
 function captionsWereOn(): boolean {
@@ -50,7 +52,7 @@ export function Broadcast({
   const channel = channels[index] ?? null;
   const rundown = useRundown(channelId);
   const [np, setNp] = useState<NowPlaying>({
-    segment: null, line: null, speaker: null, blocked: false,
+    segment: null, line: null, offsetS: 0, speaker: null, blocked: false,
   });
   const [captions, setCaptions] = useState(captionsWereOn);
   const [showSources, setShowSources] = useState(false);
@@ -121,6 +123,9 @@ export function Broadcast({
   const speakerName = channel.presenters
     .find((p) => p.id === line?.speaker)?.name.split(' ')
     .find((w) => !/^(Prof|Dr)\.?$/.test(w)) ?? '';
+  const captionText = seg && np.line !== null
+    ? captionAt(seg, np.line, np.offsetS, CAPTION_CHARS - speakerName.length - 2)
+    : '';
 
   return (
     <main
@@ -178,11 +183,12 @@ export function Broadcast({
 
         {seg ? (
           <div className="lower-third">
-            {captions && line && (
-              <p className="captions">
-                {speakerName && <span className="caption-who">{`${speakerName}:`}</span>}
-                {' '}
-                {line.text}
+            {captions && (
+              <p className="captions" aria-hidden={!captionText}>
+                {captionText && speakerName && (
+                  <span className="caption-who">{`${speakerName}:`}</span>
+                )}
+                {captionText && ` ${captionText}`}
               </p>
             )}
             <div className="lt-tabs">

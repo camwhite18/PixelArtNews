@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Rundown, Segment } from './rundown';
 import {
-  lineAt, onAir, runningLow, upNext,
+  captionAt, captionChunks, lineAt, onAir, runningLow, upNext,
 } from './rundown';
 
 const T0 = Date.parse('2026-11-07T13:00:00Z');
@@ -63,5 +63,38 @@ describe('runningLow', () => {
     expect(runningLow(rundown, T0 + 80_000, 60_000)).toBe(true);
     expect(runningLow(rundown, T0, 60_000)).toBe(false);
     expect(runningLow(null, T0, 60_000)).toBe(true);
+  });
+});
+
+describe('captions', () => {
+  it('splits long lines between words, within the limit', () => {
+    const text = 'The leader has been out front since the start, which in this demo is a record.';
+    const chunks = captionChunks(text, 30);
+    expect(chunks.join(' ')).toBe(text);
+    chunks.forEach((c) => expect(c.length).toBeLessThanOrEqual(30));
+  });
+
+  it('splits into even chunks rather than leaving a straggler', () => {
+    const chunks = captionChunks(
+      'Morning, Tess. Just one car out on track so far. Nice and quiet on the radio.',
+      70,
+    );
+    expect(chunks).toHaveLength(2);
+    expect(Math.min(...chunks.map((c) => c.length))).toBeGreaterThan(25);
+  });
+
+  it('keeps a short line whole', () => {
+    expect(captionChunks('Give me time.', 30)).toEqual(['Give me time.']);
+  });
+
+  it('turns chunks over during the line, by length', () => {
+    const s = seg('a', 0, 20);
+    s.lines[0].text = 'aaaa bbbb cccc dddd'; // two chunks of 9 at max 9
+    s.lines[0].startS = 0;
+    s.lines[1].startS = 10;
+    expect(captionAt(s, 0, 1, 9)).toBe('aaaa bbbb');
+    expect(captionAt(s, 0, 7, 9)).toBe('cccc dddd');
+    expect(captionAt(s, 1, 15, 9)).toBe('Two');
+    expect(captionAt(s, 5, 15, 9)).toBe('');
   });
 });

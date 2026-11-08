@@ -7,6 +7,8 @@ export interface NowPlaying {
   segment: Segment | null;
   /** Index into the segment's lines of the one being spoken, if any. */
   line: number | null;
+  /** Seconds into the segment. */
+  offsetS: number;
   speaker: string | null;
   /** Audio should be playing but the browser is holding it until a click. */
   blocked: boolean;
@@ -107,7 +109,7 @@ export class Player {
       if (this.currentId !== null) this.audio.pause();
       this.currentId = null;
       this.onChange({
-        segment: null, line: null, speaker: null, blocked: false,
+        segment: null, line: null, offsetS: 0, speaker: null, blocked: false,
       });
       return;
     }
@@ -125,6 +127,7 @@ export class Player {
     this.onChange({
       segment,
       line: line >= 0 ? line : null,
+      offsetS,
       speaker: segment.lines[line]?.speaker ?? null,
       blocked: this.rejected && this.audio.paused,
     });
