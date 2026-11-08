@@ -162,7 +162,7 @@ func (p *Pipeline) produce(ctx context.Context, ch store.Channel, slot shifts.Sl
 	onSet.Presenters = team
 
 	wx := p.forecast(ctx, ch.ID, slot.ID)
-	script, sources, err := p.WriteScript(ctx, onSet, slot, clusters, wx)
+	script, sources, err := p.WriteScript(ctx, onSet, slot, clusters, wx, p.memory(ctx, ch.ID))
 	if err != nil {
 		return nil, fmt.Errorf("script: %w", err)
 	}
@@ -299,4 +299,16 @@ func (p *Pipeline) refreshBoard(ctx context.Context, channelID string) {
 	if err != nil {
 		p.Log.Warn("board not updated", "channel", channelID, "err", err)
 	}
+}
+
+// memory is what the channel covered recently, for the script prompt. It
+// only adds continuity, so a failed lookup is logged and skipped.
+func (p *Pipeline) memory(ctx context.Context, channelID string) string {
+	now := time.Now()
+	past, err := p.Store.RecentSegments(ctx, channelID, now.Add(-memoryWindow))
+	if err != nil {
+		p.Log.Warn("memory unavailable", "channel", channelID, "err", err)
+		return ""
+	}
+	return MemoryNote(past, now, p.Cfg.Location)
 }

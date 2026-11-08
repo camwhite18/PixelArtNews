@@ -2,6 +2,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { type Channel, fetchChannels, syncClock } from './api';
 import { Broadcast } from './pages/Broadcast';
 import { Home } from './pages/Home';
+import { Teletext } from './pages/Teletext';
 import { useRoute } from './router';
 
 export function App() {
@@ -35,5 +36,6 @@ export function App() {
       />
     );
   }
+  if (route.page === 'text') return <Teletext channels={channels} num={route.num} />;
   return <Home channels={channels} error={error} />;
 }
