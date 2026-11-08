@@ -220,6 +220,28 @@ func (s *Store) RecentArticles(ctx context.Context, channelID string, since time
 	return pgx.CollectRows(rows, pgx.RowToStructByPos[Article])
 }
 
+// PastSegment is a segment a channel aired earlier, for presenters' memory.
+type PastSegment struct {
+	Type      string
+	Kicker    string
+	Headline  string
+	CreatedAt time.Time
+}
+
+// RecentSegments lists a channel's segments made since a time, newest first.
+func (s *Store) RecentSegments(ctx context.Context, channelID string, since time.Time) ([]PastSegment, error) {
+	rows, err := s.Pool.Query(ctx, `
+		SELECT type, COALESCE(script->>'kicker', ''), COALESCE(script->>'headline', ''), created_at
+		FROM segments
+		WHERE channel_id = $1 AND created_at >= $2
+		ORDER BY created_at DESC
+		LIMIT 60`, channelID, since)
+	if err != nil {
+		return nil, err
+	}
+	return pgx.CollectRows(rows, pgx.RowToStructByPos[PastSegment])
+}
+
 func (s *Store) StartRun(ctx context.Context, channelID, kind string) (int64, error) {
 	var id int64
 	err := s.Pool.QueryRow(ctx, `INSERT INTO runs (channel_id, kind) VALUES ($1, $2) RETURNING id`, channelID, kind).Scan(&id)

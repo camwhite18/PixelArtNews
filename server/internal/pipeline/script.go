@@ -152,7 +152,7 @@ func personaPrompt(ch store.Channel) string {
 // WriteScript asks Claude for this hour's headlines and story packages,
 // presented by the team in ch.Presenters during the given shift, plus a
 // weather segment when a forecast is given.
-func (p *Pipeline) WriteScript(ctx context.Context, ch store.Channel, slot shifts.Slot, clusters []Cluster, wx []weather.Day) ([]ScriptSegment, []rundown.Source, error) {
+func (p *Pipeline) WriteScript(ctx context.Context, ch store.Channel, slot shifts.Slot, clusters []Cluster, wx []weather.Day, memory string) ([]ScriptSegment, []rundown.Source, error) {
 	if p.Claude == nil {
 		return nil, nil, fmt.Errorf("ANTHROPIC_API_KEY is not set")
 	}
@@ -168,8 +168,11 @@ func (p *Pipeline) WriteScript(ctx context.Context, ch store.Channel, slot shift
 		speakers = append(speakers, pr.ID)
 	}
 
+	if memory != "" {
+		memory = "\nEarlier on this channel (for continuity only: you may follow a story up or say you covered it before, e.g. \"as we told you yesterday\", but every fact must still come from this hour's sources, and don't repeat a story that hasn't moved on):\n" + memory
+	}
 	user := fmt.Sprintf(`On air: the %s shift, %s to %s. Greet viewers the way this team would at this time of day.
-
+%s
 Sources for this hour:
 
 %s
@@ -178,7 +181,7 @@ Write:
 2. One "story" segment of about 60 to 90 seconds for each of the top three stories.%s
 
 Every line must cite sourceIds from the list above.`,
-		slot.Name, slot.From.In(p.Cfg.Location).Format("15:04"), slot.Until.In(p.Cfg.Location).Format("15:04"), src.text, weatherAsk)
+		slot.Name, slot.From.In(p.Cfg.Location).Format("15:04"), slot.Until.In(p.Cfg.Location).Format("15:04"), memory, src.text, weatherAsk)
 
 	msg, err := p.Claude.Messages.New(ctx, anthropic.MessageNewParams{
 		Model:     p.Cfg.ModelMain,

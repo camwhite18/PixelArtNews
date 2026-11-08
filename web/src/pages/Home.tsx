@@ -8,6 +8,7 @@ import { href, navigate } from '../router';
 import {
   clockTime, onAir, segmentLabel, startMs, upNext,
 } from '../rundown';
+import { useSetting } from '../settings';
 import { useRundown } from '../useRundown';
 
 function useClock() {
@@ -92,6 +93,7 @@ function ChannelCard({ channel, index, now }: { channel: Channel; index: number;
 
 export function Home({ channels, error }: { channels: Channel[]; error: string | null }) {
   const now = useClock();
+  const [tv, setTv] = useSetting('pxn.tv');
   return (
     <main className="home">
       <header className="home-head">
@@ -103,6 +105,24 @@ export function Home({ channels, error }: { channels: Channel[]; error: string |
           <p className="muted">24/7 AI news channels. Pick a channel to tune in.</p>
         </div>
         <div className="home-status">
+          <a
+            className="ctl"
+            href={href('/text')}
+            onClick={(e) => {
+              e.preventDefault();
+              navigate('/text');
+            }}
+          >
+            PXN TEXT
+          </a>
+          <button
+            type="button"
+            className="ctl"
+            aria-pressed={tv}
+            onClick={() => setTv(!tv)}
+          >
+            TV MODE
+          </button>
           <span className="badge-live">
             <span className="dot" aria-hidden="true" />
             ON AIR

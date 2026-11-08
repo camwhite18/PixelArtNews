@@ -14,30 +14,15 @@ import {
   captionAt, clockTime, segmentLabel, startMs, upNext,
 } from '../rundown';
 import type { IntroTiming } from '../components/Studio';
+import { useSetting } from '../settings';
+import { knobClick } from '../sfx';
+import { pageForChannel } from '../teletext/pages';
 import { useBoard } from '../useBoard';
 import { useRundown } from '../useRundown';
 
 const DEFAULT_TICKER = 'Pixel Art News · 24/7 AI news channels';
-const CAPTIONS_KEY = 'pxn.captions';
 /** Characters per caption chunk, name included: two lines of the caption box. */
 const CAPTION_CHARS = 72;
-
-/** Whether this viewer last left subtitles on; storage may be unavailable. */
-function captionsWereOn(): boolean {
-  try {
-    return localStorage.getItem(CAPTIONS_KEY) === 'on';
-  } catch {
-    return false;
-  }
-}
-
-function rememberCaptions(on: boolean) {
-  try {
-    localStorage.setItem(CAPTIONS_KEY, on ? 'on' : 'off');
-  } catch {
-    // Not remembered; subtitles still toggle for this visit.
-  }
-}
 
 interface Props {
   channels: Channel[];
@@ -57,7 +42,11 @@ export function Broadcast({
   const [np, setNp] = useState<NowPlaying>({
     segment: null, line: null, offsetS: 0, speaker: null, blocked: false,
   });
-  const [captions, setCaptions] = useState(captionsWereOn);
+  const [captions, setCaptions] = useSetting('pxn.captions');
+  const [tv, setTv] = useSetting('pxn.tv');
+  // The on-screen channel number an old TV shows after changing channel.
+  const [osd, setOsd] = useState<string | null>(null);
+  const osdTimerRef = useRef<number | undefined>(undefined);
   const [showSources, setShowSources] = useState(false);
   const [staticUntil, setStaticUntil] = useState(0);
   const [now, setNow] = useState(serverNow());
@@ -77,18 +66,29 @@ export function Broadcast({
 
   useEffect(() => player.setRundown(rundown), [player, rundown]);
 
-  const toggleCaptions = () => {
-    rememberCaptions(!captions);
-    setCaptions(!captions);
+  const toggleCaptions = () => setCaptions(!captions);
+  const textPage = `/text/${pageForChannel(channels, channelId)}`;
+
+  const tune = (to: number) => {
+    const next = channels[to];
+    if (!next || to === index) return;
+    setStaticUntil(performance.now() + 350);
+    setShowSources(false);
+    if (tv) {
+      knobClick();
+      setOsd(`CH ${String(to + 1).padStart(2, '0')}`);
+      window.clearTimeout(osdTimerRef.current);
+      osdTimerRef.current = window.setTimeout(() => setOsd(null), 2500);
+    }
+    navigate(`/ch/${next.id}`);
   };
 
   const zap = (dir: 1 | -1) => {
     if (channels.length === 0) return;
-    const next = channels[(Math.max(index, 0) + dir + channels.length) % channels.length];
-    setStaticUntil(performance.now() + 350);
-    setShowSources(false);
-    navigate(`/ch/${next.id}`);
+    tune((Math.max(index, 0) + dir + channels.length) % channels.length);
   };
+
+  useEffect(() => () => window.clearTimeout(osdTimerRef.current), []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -96,6 +96,8 @@ export function Broadcast({
       else if (e.key === 'ArrowDown' || e.key === 'PageDown') zap(1);
       else if (e.key === 'Escape') navigate('/');
       else if (e.key === 'c' || e.key === 'C') toggleCaptions();
+      else if (e.key === 't' || e.key === 'T') navigate(textPage);
+      else if (/^[1-9]$/.test(e.key)) tune(Number(e.key) - 1);
       else return;
       e.preventDefault();
     };
@@ -141,7 +143,7 @@ export function Broadcast({
 
   return (
     <main
-      className="stage-wrap"
+      className={`stage-wrap${tv ? ' tv-mode' : ''}`}
       style={{ '--accent': channel.accent }}
       onTouchStart={(e) => {
         touchYRef.current = e.touches[0].clientY;
@@ -153,39 +155,40 @@ export function Broadcast({
         if (Math.abs(dy) > 60) zap(dy < 0 ? 1 : -1);
       }}
     >
-      <div className="stage">
-        <Studio
-          scene={seg ? channel.scene : null}
-          show={showOf(seg, now)}
-          team={looksOf(team)}
-          talking={seat}
-          level={() => player.level()}
-          shot={shotFor(np.line, seat)}
-          accent={channel.accent}
-          art={seg?.type === 'story' ? seg.art : null}
-          weather={seg?.type === 'weather' ? seg.weather : null}
-          board={board}
-          intro={intro}
-          staticUntil={staticUntil}
-          label={`${channel.name} studio`}
-        />
+      <div className={tv ? 'tv' : 'tv-off'}>
+        <div className="stage">
+          <Studio
+            scene={seg ? channel.scene : null}
+            show={showOf(seg, now)}
+            team={looksOf(team)}
+            talking={seat}
+            level={() => player.level()}
+            shot={shotFor(np.line, seat)}
+            accent={channel.accent}
+            art={seg?.type === 'story' ? seg.art : null}
+            weather={seg?.type === 'weather' ? seg.weather : null}
+            board={board}
+            intro={intro}
+            staticUntil={staticUntil}
+            label={`${channel.name} studio`}
+          />
 
-        <div className="bug">
-          <span className="bug-net">PXN</span>
-          <span className="bug-ch">{channel.name}</span>
-        </div>
+          <div className="bug">
+            <span className="bug-net">PXN</span>
+            <span className="bug-ch">{channel.name}</span>
+          </div>
 
-        <div className="top-right">
-          <div className="row">
-            {seg && (
+          <div className="top-right">
+            <div className="row">
+              {seg && (
               <span className="badge-live">
                 <span className="dot" aria-hidden="true" />
                 LIVE
               </span>
-            )}
-            <span className="clock">{clockTime(now)}</span>
-          </div>
-          {next && (
+              )}
+              <span className="clock">{clockTime(now)}</span>
+            </div>
+            {next && (
             <span className="next">
               NEXT
               {' '}
@@ -195,62 +198,83 @@ export function Broadcast({
               {' '}
               {segmentLabel(next).toUpperCase()}
             </span>
-          )}
-        </div>
+            )}
+          </div>
 
-        {seg ? (
-          <div className="lower-third">
-            {captions && (
+          {seg ? (
+            <div className="lower-third">
+              {captions && (
               <p className="captions" aria-hidden={!captionText}>
                 {captionText && speakerName && (
                   <span className="caption-who">{`${speakerName}:`}</span>
                 )}
                 {captionText && ` ${captionText}`}
               </p>
-            )}
-            <div className="lt-tabs">
-              <span className="kicker">{seg.kicker || segmentLabel(seg).toUpperCase()}</span>
-              <span className="hosts">{hosts}</span>
+              )}
+              <div className="lt-tabs">
+                <span className="kicker">{seg.kicker || segmentLabel(seg).toUpperCase()}</span>
+                <span className="hosts">{hosts}</span>
+              </div>
+              {seg.headline && <div className="lt-headline">{seg.headline}</div>}
             </div>
-            {seg.headline && <div className="lt-headline">{seg.headline}</div>}
-          </div>
-        ) : (
-          <div className="lower-third">
-            <div className="lt-headline">Off air — the first broadcast is being prepared.</div>
-          </div>
-        )}
+          ) : (
+            <div className="lower-third">
+              <div className="lt-headline">Off air — the first broadcast is being prepared.</div>
+            </div>
+          )}
 
-        <div className="controls">
-          <button
-            type="button"
-            className="ctl"
-            aria-pressed={captions}
-            aria-label="Subtitles"
-            title="Subtitles (C)"
-            onClick={toggleCaptions}
-          >
-            CC
-          </button>
-          <a
-            className="ctl"
-            href={href('/')}
-            onClick={(e) => {
-              e.preventDefault();
-              navigate('/');
-            }}
-          >
-            <PixelIcon name="left" />
-            GUIDE
-          </a>
-          <button type="button" className="ctl" aria-label="Channel up" onClick={() => zap(-1)}>
-            CH
-            <PixelIcon name="up" />
-          </button>
-          <button type="button" className="ctl" aria-label="Channel down" onClick={() => zap(1)}>
-            CH
-            <PixelIcon name="down" />
-          </button>
-          {seg && seg.sources.length > 0 && (
+          <div className="controls">
+            <a
+              className="ctl"
+              href={href(textPage)}
+              title="PXN TEXT (T)"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(textPage);
+              }}
+            >
+              TEXT
+            </a>
+            <button
+              type="button"
+              className="ctl"
+              aria-pressed={tv}
+              aria-label="Retro TV mode"
+              title="Retro TV mode"
+              onClick={() => setTv(!tv)}
+            >
+              TV
+            </button>
+            <button
+              type="button"
+              className="ctl"
+              aria-pressed={captions}
+              aria-label="Subtitles"
+              title="Subtitles (C)"
+              onClick={toggleCaptions}
+            >
+              CC
+            </button>
+            <a
+              className="ctl"
+              href={href('/')}
+              onClick={(e) => {
+                e.preventDefault();
+                navigate('/');
+              }}
+            >
+              <PixelIcon name="left" />
+              GUIDE
+            </a>
+            <button type="button" className="ctl" aria-label="Channel up" onClick={() => zap(-1)}>
+              CH
+              <PixelIcon name="up" />
+            </button>
+            <button type="button" className="ctl" aria-label="Channel down" onClick={() => zap(1)}>
+              CH
+              <PixelIcon name="down" />
+            </button>
+            {seg && seg.sources.length > 0 && (
             <button
               type="button"
               className="ctl"
@@ -259,10 +283,10 @@ export function Broadcast({
             >
               SOURCES
             </button>
-          )}
-        </div>
+            )}
+          </div>
 
-        {showSources && seg && (
+          {showSources && seg && (
           <div className="sources" role="dialog" aria-label="Sources for this segment">
             <ul>
               {seg.sources.map((s) => (
@@ -276,21 +300,23 @@ export function Broadcast({
               ))}
             </ul>
           </div>
-        )}
+          )}
 
-        <div className="scanlines" aria-hidden="true" />
+          <div className="scanlines" aria-hidden="true" />
+          {tv && <div className="crt-glass" aria-hidden="true" />}
+          {tv && osd && <div className="osd" aria-hidden="true">{osd}</div>}
 
-        <div className="ticker">
-          <span className="ticker-ch">{channel.name}</span>
-          <div className="ticker-track">
-            <div className="ticker-run">
-              <span>{ticker}</span>
-              <span aria-hidden="true">{ticker}</span>
+          <div className="ticker">
+            <span className="ticker-ch">{channel.name}</span>
+            <div className="ticker-track">
+              <div className="ticker-run">
+                <span>{ticker}</span>
+                <span aria-hidden="true">{ticker}</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {seg && (!unlocked || np.blocked) && (
+          {seg && (!unlocked || np.blocked) && (
           <button
             type="button"
             className="power-on"
@@ -302,6 +328,15 @@ export function Broadcast({
             <PixelIcon name="play" />
             SWITCH ON
           </button>
+          )}
+        </div>
+        {tv && (
+        <div className="tv-panel" aria-hidden="true">
+          <span className="tv-led">{String(index + 1).padStart(2, '0')}</span>
+          <span className="tv-knob" />
+          <span className="tv-knob" />
+          <span className="tv-grille" />
+        </div>
         )}
       </div>
     </main>

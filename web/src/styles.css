@@ -9,6 +9,10 @@
   --live: #ff4d5e;
   --pixel: "Press Start 2P", monospace;
   --body: Tiny5, monospace;
+  /* Defaults for controls outside the broadcast stage, which sets its own. */
+  --px: 2px;
+  --type-ui: 16px;
+  --shadow: 2px 2px 0 rgb(0 0 0 / 55%);
   color-scheme: dark;
 }
 
@@ -562,6 +566,130 @@ a {
   z-index: 3;
 }
 
+/* ---------- Retro TV mode ---------- */
+/* The picture sits in a walnut CRT set: rounded glass with a vignette and
+   glare, a side panel with the channel LED, knobs and a speaker grille,
+   and a power-on flash. Off, the wrapper disappears from the layout. */
+
+.tv-off {
+  display: contents;
+}
+
+.tv-mode {
+  background: radial-gradient(ellipse at center, #1b1712 0%, #000 75%);
+}
+
+.tv {
+  --bezel: clamp(14px, 2.6vw, 40px);
+  --panel: clamp(64px, 9vw, 140px);
+  display: flex;
+  gap: var(--bezel);
+  padding: var(--bezel);
+  background:
+    repeating-linear-gradient(90deg, rgb(0 0 0 / 6%) 0 2px, transparent 2px 9px),
+    #6b4f36;
+  border-radius: 10px;
+  box-shadow:
+    inset 0 0 0 4px #8a6a4a,
+    inset 0 -10px 0 4px #4a3524,
+    0 10px 0 #1a120c,
+    0 18px 40px rgb(0 0 0 / 60%);
+}
+
+.tv-mode .stage {
+  width: min(
+    100vw - 3 * var(--bezel) - var(--panel) - 32px,
+    (100dvh - 2 * var(--bezel) - 40px) * 16 / 9
+  );
+  border-radius: 3.5% / 6%;
+  box-shadow: 0 0 0 6px #141414, 0 0 0 10px #2e2e2e;
+}
+
+.crt-glass {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  border-radius: inherit;
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 9%) 0%, transparent 35%),
+    radial-gradient(ellipse at center, transparent 58%, rgb(0 0 0 / 50%) 100%);
+}
+
+.tv-panel {
+  width: var(--panel);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--bezel) * 0.8);
+  padding-block: 4px;
+}
+
+.tv-led {
+  font-family: var(--pixel);
+  font-size: 16px;
+  line-height: 1;
+  color: #ff3b3b;
+  background: #1a0505;
+  padding: 8px;
+  box-shadow: inset 0 0 0 2px #000;
+  text-shadow: 0 0 6px rgb(255 59 59 / 70%);
+}
+
+.tv-knob {
+  width: 58%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #b8b0a4, #5a544c 70%);
+  box-shadow: 0 4px 0 #2a1d12, inset 0 0 0 3px #3a342c;
+}
+
+.tv-grille {
+  flex: 1;
+  width: 72%;
+  min-height: 40px;
+  background: repeating-linear-gradient(to bottom, #2a1d12 0 4px, transparent 4px 9px);
+}
+
+.osd {
+  position: absolute;
+  top: calc(40 * var(--px));
+  right: calc(8 * var(--px));
+  z-index: 3;
+  font-family: var(--pixel);
+  font-size: max(16px, calc(var(--type) * 2));
+  line-height: 1;
+  color: #3bff5a;
+  text-shadow: calc(2 * var(--px)) calc(2 * var(--px)) 0 #000;
+}
+
+@container (min-width: 640px) {
+  .tv-mode .scanlines {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tv-mode .stage {
+    animation: crt-on 0.5s steps(8) both;
+  }
+}
+
+@keyframes crt-on {
+  0% {
+    transform: scale(1, 0.01);
+    filter: brightness(4);
+  }
+  45% {
+    transform: scale(1, 0.02);
+    filter: brightness(3);
+  }
+  100% {
+    transform: none;
+    filter: none;
+  }
+}
+
 /* Narrow screens: the picture is too small to cover, so the ticker, the
    lower third and the controls stack below it, like a news app. */
 @media (max-width: 640px) {
@@ -616,5 +744,146 @@ a {
   .power-on {
     inset: 28.125vw 0 auto;
     transform: translateY(-50%);
+  }
+}
+
+/* ---------- PXN TEXT (teletext) ---------- */
+/* A 40 x 25 grid of Press Start 2P cells (each glyph is exactly 1em wide),
+   in teletext's eight colours. The font size is a multiple of 8px so the
+   cells stay crisp, as large as the screen allows. */
+
+.tt-wrap {
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 16px;
+  background: #000;
+  padding-block: 16px;
+  padding-left: max(8px, env(safe-area-inset-left, 0px));
+  padding-right: max(8px, env(safe-area-inset-right, 0px));
+}
+
+.tt {
+  --tt: max(8px, round(down, min(96vw / 40, (100dvh - 120px) / 25), 8px));
+  font-family: var(--pixel);
+  font-size: var(--tt);
+  line-height: 1;
+  width: 40em;
+  background: #000;
+  color: #fff;
+}
+
+/* Phones have dense screens, so a font size between multiples of 8px still
+   looks sharp there, and filling the width reads better. */
+@media (max-width: 640px) and (min-resolution: 2dppx) {
+  .tt {
+    --tt: calc(96vw / 40);
+  }
+}
+
+.tt-row {
+  height: 1em;
+  white-space: pre;
+  overflow: hidden;
+}
+
+/* Content rows keep a column of margin, as teletext's control codes did. */
+.tt-row:not(.tt-header) {
+  padding-left: 1em;
+}
+
+.tt-double > * {
+  display: inline-block;
+  transform: scaleY(2);
+  transform-origin: top;
+}
+
+.tt-double {
+  overflow: visible;
+}
+
+.tt-header {
+  color: #fff;
+}
+
+.tt-fastext {
+  display: flex;
+  justify-content: space-between;
+  padding-right: 1em;
+}
+
+.tt-link {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.tt-link:hover,
+.tt-link:focus-visible {
+  text-decoration: underline;
+  outline: none;
+}
+
+.tt-fg-black { color: #000; }
+.tt-fg-red { color: #ff3b3b; }
+.tt-fg-green { color: #3bff5a; }
+.tt-fg-yellow { color: #ffff4a; }
+.tt-fg-blue { color: #4a5aff; }
+.tt-fg-magenta { color: #ff4aff; }
+.tt-fg-cyan { color: #4affff; }
+.tt-fg-white { color: #fff; }
+.tt-bg-black { background: #000; }
+.tt-bg-red { background: #d01e1e; }
+.tt-bg-green { background: #12a830; }
+.tt-bg-yellow { background: #d8d800; }
+.tt-bg-blue { background: #1e2ad0; }
+.tt-bg-magenta { background: #c018c0; }
+.tt-bg-cyan { background: #10b8b8; }
+.tt-bg-white { background: #fff; }
+
+.tt-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.tt-goto label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--body);
+  font-size: 16px;
+}
+
+.tt-goto input {
+  width: 4.5em;
+  min-height: 44px;
+  font-family: var(--pixel);
+  font-size: 16px;
+  color: #ffff4a;
+  background: #000;
+  border: 2px solid var(--paper);
+  padding: 0 8px;
+}
+
+/* Retro TV mode on phones: no casing room, so just the rounded glass. */
+@media (max-width: 640px) {
+  .tv {
+    display: contents;
+  }
+  .tv-panel,
+  .crt-glass {
+    display: none;
+  }
+  .tv-mode .stage {
+    width: 100vw;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .tv-mode .studio {
+    border-radius: 4% / 7%;
   }
 }
