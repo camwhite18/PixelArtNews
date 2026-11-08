@@ -490,6 +490,33 @@ a {
   }
 }
 
+/* Subtitles sit just above the lower third: below the presenters' faces
+   in both wide shots and close-ups. The box is a fixed two lines tall and
+   a fixed width, so nothing moves as captions change; long lines are split
+   into timed chunks that fit (captionAt in rundown.ts). */
+.captions {
+  box-sizing: border-box;
+  width: calc(200 * var(--px));
+  height: 2.875em; /* two lines + padding */
+  overflow: hidden;
+  margin: 0 0 calc(3 * var(--px));
+  background: rgb(11 11 20 / 88%);
+  font-size: var(--type-read);
+  line-height: 1.125;
+  padding: 0.25em 0.5em 0.375em;
+}
+
+.caption-who {
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.ctl[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
 /* Scanlines, one per studio pixel row. Only on big screens, where each row
    is several screen pixels tall; on small ones they'd shimmer. */
 .scanlines {
@@ -554,8 +581,18 @@ a {
   .lower-third {
     position: static;
     order: 2;
+    filter: none; /* a filter would anchor the captions here, not on the picture */
     max-width: none;
     margin: 16px 16px 0;
+  }
+  /* Over the bottom of the picture (16:9 of the full width), so turning
+     subtitles on doesn't push the page down. */
+  .captions {
+    position: absolute;
+    top: calc(56.25vw - 2.875 * var(--type-read) - 6px);
+    left: 8px;
+    width: calc(100% - 16px);
+    margin: 0;
   }
   .lt-tabs {
     flex-wrap: wrap;

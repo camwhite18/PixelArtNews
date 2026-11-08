@@ -97,6 +97,7 @@ export const footballScene: SceneData = {
   ],
   texts: [[15, 32, 8, '#06140c', 'TABLE']],
   seats: { one: 138, two: [96, 186] },
+  prop: 236,
 };
 
 // ---------- Shows ----------
