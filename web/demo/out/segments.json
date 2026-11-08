@@ -1,227 +1,265 @@
 {
   "world-breakfast": {
-    "durationS": 17.947,
+    "durationS": 19.459,
     "lineStarts": [
-      0.0,
-      4.741,
-      11.152,
-      12.621
-    ]
+      1.49,
+      6.256,
+      12.666,
+      14.133
+    ],
+    "introS": 1.49
+  },
+  "world-weather": {
+    "durationS": 21.645,
+    "lineStarts": [
+      0.74,
+      6.244,
+      12.012,
+      18.028
+    ],
+    "introS": 0.74
   },
   "world-daytime": {
-    "durationS": 14.208,
+    "durationS": 15.031,
     "lineStarts": [
-      0.0,
-      2.807,
-      9.107
-    ]
+      0.74,
+      3.586,
+      9.886
+    ],
+    "introS": 0.74
   },
   "world-evening": {
-    "durationS": 17.653,
+    "durationS": 18.271,
     "lineStarts": [
-      0.0,
-      3.734,
-      12.589,
-      14.716
-    ]
+      0.74,
+      4.478,
+      13.283,
+      15.41
+    ],
+    "introS": 0.74
   },
   "world-overnight": {
-    "durationS": 10.807,
+    "durationS": 11.545,
     "lineStarts": [
-      0.0,
-      4.658
-    ]
+      0.74,
+      5.421
+    ],
+    "introS": 0.74
   },
   "tech-breakfast": {
-    "durationS": 17.661,
+    "durationS": 19.335,
     "lineStarts": [
-      0.0,
-      7.781,
-      10.331,
-      14.336
-    ]
+      1.49,
+      9.316,
+      11.88,
+      15.985
+    ],
+    "introS": 1.49
   },
   "tech-daytime": {
-    "durationS": 10.629,
+    "durationS": 11.444,
     "lineStarts": [
-      0.0,
-      5.639,
-      7.859
-    ]
+      0.74,
+      6.454,
+      8.699
+    ],
+    "introS": 0.74
   },
   "tech-evening": {
-    "durationS": 15.446,
+    "durationS": 16.183,
     "lineStarts": [
-      0.0,
-      3.694,
-      11.4,
-      14.136
-    ]
+      0.74,
+      4.412,
+      12.144,
+      14.855
+    ],
+    "introS": 0.74
   },
   "tech-overnight": {
-    "durationS": 7.99,
+    "durationS": 8.787,
     "lineStarts": [
-      0.0,
-      3.648
-    ]
+      0.74,
+      4.417
+    ],
+    "introS": 0.74
   },
   "science-breakfast": {
-    "durationS": 17.598,
+    "durationS": 18.999,
     "lineStarts": [
-      0.0,
-      3.551,
-      11.349,
-      12.847
-    ]
+      1.49,
+      5.016,
+      12.84,
+      14.342
+    ],
+    "introS": 1.49
   },
   "science-daytime": {
-    "durationS": 15.325,
+    "durationS": 15.766,
     "lineStarts": [
-      0.0,
-      3.684,
-      10.136
-    ]
+      0.74,
+      4.452,
+      10.777
+    ],
+    "introS": 0.74
   },
   "science-evening": {
-    "durationS": 12.165,
+    "durationS": 12.814,
     "lineStarts": [
-      0.0,
-      4.5,
-      9.328
-    ]
+      0.74,
+      5.266,
+      10.018
+    ],
+    "introS": 0.74
   },
   "science-overnight": {
-    "durationS": 10.943,
+    "durationS": 11.784,
     "lineStarts": [
-      0.0,
-      2.972
-    ]
+      0.74,
+      3.712
+    ],
+    "introS": 0.74
   },
   "sport-breakfast": {
-    "durationS": 11.442,
+    "durationS": 12.86,
     "lineStarts": [
-      0.0,
-      4.181,
-      9.558
-    ]
+      1.49,
+      5.671,
+      10.998
+    ],
+    "introS": 1.49
   },
   "sport-daytime": {
-    "durationS": 12.124,
+    "durationS": 12.785,
     "lineStarts": [
-      0.0,
-      6.706,
-      9.882
-    ]
+      0.74,
+      7.372,
+      10.646
+    ],
+    "introS": 0.74
   },
   "sport-evening": {
-    "durationS": 13.629,
+    "durationS": 14.355,
     "lineStarts": [
-      0.0,
-      5.657,
-      10.049
-    ]
+      0.74,
+      6.354,
+      10.774
+    ],
+    "introS": 0.74
   },
   "sport-overnight": {
-    "durationS": 9.18,
+    "durationS": 9.943,
     "lineStarts": [
-      0.0,
-      5.209
-    ]
-  },
-  "weird-breakfast": {
-    "durationS": 10.251,
-    "lineStarts": [
-      0.0,
-      2.547,
-      8.999
-    ]
-  },
-  "weird-daytime": {
-    "durationS": 12.554,
-    "lineStarts": [
-      0.0,
-      4.286,
-      8.193
-    ]
-  },
-  "weird-evening": {
-    "durationS": 11.684,
-    "lineStarts": [
-      0.0,
-      4.48,
-      7.237,
-      8.983
-    ]
-  },
-  "weird-overnight": {
-    "durationS": 8.078,
-    "lineStarts": [
-      0.0,
-      2.25
-    ]
+      0.74,
+      5.973
+    ],
+    "introS": 0.74
   },
   "football-breakfast": {
-    "durationS": 13.002,
+    "durationS": 14.492,
     "lineStarts": [
-      0.0,
-      5.447,
-      9.946
-    ]
+      1.49,
+      6.937,
+      11.436
+    ],
+    "introS": 1.49
   },
   "football-daytime": {
-    "durationS": 13.181,
+    "durationS": 13.921,
     "lineStarts": [
-      0.0,
-      4.837,
-      10.469
-    ]
+      0.74,
+      5.577,
+      11.209
+    ],
+    "introS": 0.74
   },
   "football-evening": {
-    "durationS": 14.972,
+    "durationS": 15.712,
     "lineStarts": [
-      0.0,
-      5.301,
-      9.816,
-      12.828
-    ]
+      0.74,
+      6.041,
+      10.556,
+      13.568
+    ],
+    "introS": 0.74
   },
   "football-overnight": {
-    "durationS": 7.925,
+    "durationS": 8.665,
     "lineStarts": [
-      0.0,
-      4.466
-    ]
+      0.74,
+      5.206
+    ],
+    "introS": 0.74
   },
   "f1-breakfast": {
-    "durationS": 13.056,
+    "durationS": 14.546,
     "lineStarts": [
-      0.0,
-      5.408,
-      10.815
-    ]
+      1.49,
+      6.898,
+      12.305
+    ],
+    "introS": 1.49
   },
   "f1-daytime": {
-    "durationS": 13.52,
+    "durationS": 14.26,
     "lineStarts": [
-      0.0,
-      6.05,
-      11.301
-    ]
+      0.74,
+      6.79,
+      12.041
+    ],
+    "introS": 0.74
   },
   "f1-evening": {
-    "durationS": 13.569,
+    "durationS": 14.309,
     "lineStarts": [
-      0.0,
-      5.384,
-      9.535,
-      11.289
-    ]
+      0.74,
+      6.124,
+      10.275,
+      12.029
+    ],
+    "introS": 0.74
   },
   "f1-overnight": {
-    "durationS": 9.252,
+    "durationS": 9.992,
     "lineStarts": [
-      0.0,
-      4.685
-    ]
+      0.74,
+      5.425
+    ],
+    "introS": 0.74
+  },
+  "weird-breakfast": {
+    "durationS": 11.692,
+    "lineStarts": [
+      1.49,
+      4.062,
+      10.438
+    ],
+    "introS": 1.49
+  },
+  "weird-daytime": {
+    "durationS": 13.242,
+    "lineStarts": [
+      0.74,
+      5.051,
+      8.933
+    ],
+    "introS": 0.74
+  },
+  "weird-evening": {
+    "durationS": 12.341,
+    "lineStarts": [
+      0.74,
+      5.148,
+      7.894,
+      9.64
+    ],
+    "introS": 0.74
+  },
+  "weird-overnight": {
+    "durationS": 8.867,
+    "lineStarts": [
+      0.74,
+      2.965
+    ],
+    "introS": 0.74
   }
 }
