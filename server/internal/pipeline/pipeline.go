@@ -41,14 +41,30 @@ func New(cfg config.Config, st *store.Store, log *slog.Logger) *Pipeline {
 		HTTP: &http.Client{Timeout: 20 * time.Second},
 	}
 	if cfg.AnthropicAPIKey != "" {
-		opts := []option.RequestOption{option.WithAPIKey(cfg.AnthropicAPIKey), option.WithMaxRetries(3)}
-		if cfg.AnthropicBaseURL != "" {
-			opts = append(opts, option.WithBaseURL(cfg.AnthropicBaseURL))
-		}
-		c := anthropic.NewClient(opts...)
+		c := newClaude(cfg)
 		p.Claude = &c
 	}
 	return p
+}
+
+// defaultAnthropicBaseURL is the API endpoint used when ANTHROPIC_BASE_URL is unset or empty.
+const defaultAnthropicBaseURL = "https://api.anthropic.com/"
+
+// newClaude builds the Claude client. It always sets a base URL. The SDK also
+// reads ANTHROPIC_BASE_URL from the environment by itself, and docker-compose
+// passes that variable through even when it is empty, so leaving the option
+// out would make every request go to "/v1/messages" with no host.
+func newClaude(cfg config.Config, extra ...option.RequestOption) anthropic.Client {
+	base := cfg.AnthropicBaseURL
+	if base == "" {
+		base = defaultAnthropicBaseURL
+	}
+	opts := []option.RequestOption{
+		option.WithAPIKey(cfg.AnthropicAPIKey),
+		option.WithMaxRetries(3),
+		option.WithBaseURL(base),
+	}
+	return anthropic.NewClient(append(opts, extra...)...)
 }
 
 // Run statuses recorded in the runs table.
