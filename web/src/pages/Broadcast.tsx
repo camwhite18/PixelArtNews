@@ -48,6 +48,8 @@ export function Broadcast({
   const [osd, setOsd] = useState<string | null>(null);
   const osdTimerRef = useRef<number | undefined>(undefined);
   const [showSources, setShowSources] = useState(false);
+  // The controls live in a drawer on the right edge so they never cover the headline.
+  const [controlsOpen, setControlsOpen] = useState(false);
   const [staticUntil, setStaticUntil] = useState(0);
   const [now, setNow] = useState(serverNow());
   const touchYRef = useRef<number | null>(null);
@@ -67,6 +69,10 @@ export function Broadcast({
   useEffect(() => player.setRundown(rundown), [player, rundown]);
 
   const toggleCaptions = () => setCaptions(!captions);
+  const toggleControls = () => {
+    if (controlsOpen) setShowSources(false);
+    setControlsOpen(!controlsOpen);
+  };
   const textPage = `/text/${pageForChannel(channels, channelId)}`;
 
   const tune = (to: number) => {
@@ -97,6 +103,7 @@ export function Broadcast({
       else if (e.key === 'Escape') navigate('/');
       else if (e.key === 'c' || e.key === 'C') toggleCaptions();
       else if (e.key === 't' || e.key === 'T') navigate(textPage);
+      else if (e.key === 'm' || e.key === 'M') toggleControls();
       else if (/^[1-9]$/.test(e.key)) tune(Number(e.key) - 1);
       else return;
       e.preventDefault();
@@ -201,30 +208,56 @@ export function Broadcast({
             )}
           </div>
 
-          <div className="bottom-row">
-            {seg ? (
-              <div className="lower-third">
-                {captions && (
-                <p className="captions" aria-hidden={!captionText}>
-                  {captionText && speakerName && (
-                    <span className="caption-who">{`${speakerName}:`}</span>
-                  )}
-                  {captionText && ` ${captionText}`}
-                </p>
+          {seg ? (
+            <div className="lower-third">
+              {captions && (
+              <p className="captions" aria-hidden={!captionText}>
+                {captionText && speakerName && (
+                  <span className="caption-who">{`${speakerName}:`}</span>
                 )}
-                <div className="lt-tabs">
-                  <span className="kicker">{seg.kicker || segmentLabel(seg).toUpperCase()}</span>
-                  <span className="hosts">{hosts}</span>
-                </div>
-                {seg.headline && <div className="lt-headline">{seg.headline}</div>}
+                {captionText && ` ${captionText}`}
+              </p>
+              )}
+              <div className="lt-tabs">
+                <span className="kicker">{seg.kicker || segmentLabel(seg).toUpperCase()}</span>
+                <span className="hosts">{hosts}</span>
               </div>
-            ) : (
-              <div className="lower-third">
-                <div className="lt-headline">Off air — the first broadcast is being prepared.</div>
-              </div>
-            )}
+              {seg.headline && <div className="lt-headline">{seg.headline}</div>}
+            </div>
+          ) : (
+            <div className="lower-third">
+              <div className="lt-headline">Off air — the first broadcast is being prepared.</div>
+            </div>
+          )}
 
-            <div className="controls">
+          <div className={`controls-dock${controlsOpen ? ' open' : ''}`}>
+            {showSources && seg && (
+            <div className="sources" role="dialog" aria-label="Sources for this segment">
+              <ul>
+                {seg.sources.map((s) => (
+                  <li key={s.id}>
+                    <a href={s.url} target="_blank" rel="noopener noreferrer">
+                      {s.outlet}
+                      {' '}
+                      <PixelIcon name="out" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            )}
+            <button
+              type="button"
+              className="ctl dock-toggle"
+              aria-expanded={controlsOpen}
+              aria-controls="broadcast-controls"
+              title="Controls (M)"
+              onClick={toggleControls}
+            >
+              <PixelIcon name={controlsOpen ? 'right' : 'left'} />
+              MENU
+            </button>
+            <div className="controls" id="broadcast-controls">
               <a
                 className="ctl"
                 href={href(textPage)}
@@ -297,22 +330,6 @@ export function Broadcast({
               )}
             </div>
           </div>
-
-          {showSources && seg && (
-          <div className="sources" role="dialog" aria-label="Sources for this segment">
-            <ul>
-              {seg.sources.map((s) => (
-                <li key={s.id}>
-                  <a href={s.url} target="_blank" rel="noopener noreferrer">
-                    {s.outlet}
-                    {' '}
-                    <PixelIcon name="out" />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-          )}
 
           <div className="scanlines" aria-hidden="true" />
           {tv && <div className="crt-glass" aria-hidden="true" />}
