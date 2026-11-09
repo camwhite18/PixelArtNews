@@ -37,7 +37,7 @@ func TestSPA(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.path, func(t *testing.T) {
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, tc.path, nil))
+			h.ServeHTTP(rec, httptest.NewRequestWithContext(t.Context(), http.MethodGet, tc.path, nil))
 			if rec.Code != tc.status {
 				t.Fatalf("status %d, want %d", rec.Code, tc.status)
 			}
