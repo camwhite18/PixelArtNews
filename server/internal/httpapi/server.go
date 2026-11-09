@@ -114,10 +114,18 @@ func isFile(fsys fs.FS, urlPath string) bool {
 }
 
 // spa serves the built front end, falling back to index.html for app routes.
+// A missing path that looks like a file (it has an extension) gets a real,
+// uncacheable 404 instead: otherwise a CDN caches index.html under that URL,
+// which is how /favicon.ico ended up serving HTML from Cloudflare.
 func spa(fsys fs.FS) http.Handler {
 	files := http.FileServerFS(fsys)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if _, err := fs.Stat(fsys, fsName(r.URL.Path)); errors.Is(err, fs.ErrNotExist) {
+			if path.Ext(path.Clean(r.URL.Path)) != "" {
+				w.Header().Set("Cache-Control", "no-store")
+				http.NotFound(w, r)
+				return
+			}
 			http.ServeFileFS(w, r, fsys, "index.html")
 			return
 		}
