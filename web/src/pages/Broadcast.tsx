@@ -201,89 +201,101 @@ export function Broadcast({
             )}
           </div>
 
-          {seg ? (
-            <div className="lower-third">
-              {captions && (
-              <p className="captions" aria-hidden={!captionText}>
-                {captionText && speakerName && (
-                  <span className="caption-who">{`${speakerName}:`}</span>
+          <div className="bottom-row">
+            {seg ? (
+              <div className="lower-third">
+                {captions && (
+                <p className="captions" aria-hidden={!captionText}>
+                  {captionText && speakerName && (
+                    <span className="caption-who">{`${speakerName}:`}</span>
+                  )}
+                  {captionText && ` ${captionText}`}
+                </p>
                 )}
-                {captionText && ` ${captionText}`}
-              </p>
-              )}
-              <div className="lt-tabs">
-                <span className="kicker">{seg.kicker || segmentLabel(seg).toUpperCase()}</span>
-                <span className="hosts">{hosts}</span>
+                <div className="lt-tabs">
+                  <span className="kicker">{seg.kicker || segmentLabel(seg).toUpperCase()}</span>
+                  <span className="hosts">{hosts}</span>
+                </div>
+                {seg.headline && <div className="lt-headline">{seg.headline}</div>}
               </div>
-              {seg.headline && <div className="lt-headline">{seg.headline}</div>}
-            </div>
-          ) : (
-            <div className="lower-third">
-              <div className="lt-headline">Off air — the first broadcast is being prepared.</div>
-            </div>
-          )}
-
-          <div className="controls">
-            <a
-              className="ctl"
-              href={href(textPage)}
-              title="PXN TEXT (T)"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate(textPage);
-              }}
-            >
-              TEXT
-            </a>
-            <button
-              type="button"
-              className="ctl"
-              aria-pressed={tv}
-              aria-label="Retro TV mode"
-              title="Retro TV mode"
-              onClick={() => setTv(!tv)}
-            >
-              TV
-            </button>
-            <button
-              type="button"
-              className="ctl"
-              aria-pressed={captions}
-              aria-label="Subtitles"
-              title="Subtitles (C)"
-              onClick={toggleCaptions}
-            >
-              CC
-            </button>
-            <a
-              className="ctl"
-              href={href('/')}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/');
-              }}
-            >
-              <PixelIcon name="left" />
-              GUIDE
-            </a>
-            <button type="button" className="ctl" aria-label="Channel up" onClick={() => zap(-1)}>
-              CH
-              <PixelIcon name="up" />
-            </button>
-            <button type="button" className="ctl" aria-label="Channel down" onClick={() => zap(1)}>
-              CH
-              <PixelIcon name="down" />
-            </button>
-            {seg && seg.sources.length > 0 && (
-            <button
-              type="button"
-              className="ctl"
-              aria-expanded={showSources}
-              onClick={() => setShowSources(!showSources)}
-            >
-              SOURCES
-            </button>
+            ) : (
+              <div className="lower-third">
+                <div className="lt-headline">Off air — the first broadcast is being prepared.</div>
+              </div>
             )}
+
+            <div className="controls">
+              <a
+                className="ctl"
+                href={href(textPage)}
+                title="PXN TEXT (T)"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(textPage);
+                }}
+              >
+                TEXT
+              </a>
+              <button
+                type="button"
+                className="ctl"
+                aria-pressed={tv}
+                aria-label="Retro TV mode"
+                title="Retro TV mode"
+                onClick={() => setTv(!tv)}
+              >
+                TV
+              </button>
+              <button
+                type="button"
+                className="ctl"
+                aria-pressed={captions}
+                aria-label="Subtitles"
+                title="Subtitles (C)"
+                onClick={toggleCaptions}
+              >
+                CC
+              </button>
+              <a
+                className="ctl"
+                href={href('/')}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/');
+                }}
+              >
+                <PixelIcon name="left" />
+                GUIDE
+              </a>
+              <button
+                type="button"
+                className="ctl"
+                aria-label="Channel up"
+                onClick={() => zap(-1)}
+              >
+                CH
+                <PixelIcon name="up" />
+              </button>
+              <button
+                type="button"
+                className="ctl"
+                aria-label="Channel down"
+                onClick={() => zap(1)}
+              >
+                CH
+                <PixelIcon name="down" />
+              </button>
+              {seg && seg.sources.length > 0 && (
+              <button
+                type="button"
+                className="ctl"
+                aria-expanded={showSources}
+                onClick={() => setShowSources(!showSources)}
+              >
+                SOURCES
+              </button>
+              )}
+            </div>
           </div>
 
           {showSources && seg && (
