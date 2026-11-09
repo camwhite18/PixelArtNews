@@ -345,11 +345,22 @@ a {
   padding: 0.25em 0.375em;
 }
 
-.lower-third {
+/* The lower third and the controls share one row above the ticker, so a long
+   headline wraps instead of running under the buttons. */
+.bottom-row {
   position: absolute;
   left: calc(12 * var(--px));
+  right: calc(6 * var(--px));
   bottom: var(--above-ticker);
-  max-width: calc(220 * var(--px));
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: calc(6 * var(--px));
+}
+
+.lower-third {
+  flex: 0 1 calc(220 * var(--px));
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -383,9 +394,7 @@ a {
 }
 
 .controls {
-  position: absolute;
-  right: calc(6 * var(--px));
-  bottom: var(--above-ticker);
+  flex: none; /* one row: .sources is placed a fixed height above it */
   display: flex;
   gap: calc(2 * var(--px));
 }
@@ -501,6 +510,7 @@ a {
 .captions {
   box-sizing: border-box;
   width: calc(200 * var(--px));
+  max-width: 100%; /* the lower third can be narrower when the controls need the room */
   height: 2.875em; /* two lines + padding */
   overflow: hidden;
   margin: 0 0 calc(3 * var(--px));
@@ -705,6 +715,9 @@ a {
   .ticker {
     position: static;
     order: 1;
+  }
+  .bottom-row {
+    display: contents;
   }
   .lower-third {
     position: static;
