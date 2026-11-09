@@ -1,0 +1,21 @@
+# Opt-in NVIDIA GPU for Kokoro. Enable with
+#   COMPOSE_FILE=docker-compose.yml:docker-compose.gpu.yml
+# in .env. Needs the NVIDIA driver and nvidia-container-toolkit on the host.
+#
+# torch 2.14.1+cu126 is the newest build that still ships Pascal (sm_60)
+# kernels, so it works on cards like the Quadro P1000. On Turing or newer
+# you can raise both to a current cu128/cu130 build.
+services:
+  tts:
+    build:
+      args:
+        TORCH_SPEC: torch==2.14.1
+        TORCH_INDEX: cu126
+    cpus: ${TTS_CPUS:-2}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

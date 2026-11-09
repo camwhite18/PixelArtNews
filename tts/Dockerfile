@@ -7,8 +7,11 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# CPU-only PyTorch: the GPU stays with Jellyfin, and the CUDA wheels are huge.
-RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+# CPU-only PyTorch by default, since the CUDA wheels are huge. docker-compose.gpu.yml
+# overrides these to build a CUDA torch for an NVIDIA GPU.
+ARG TORCH_SPEC=torch
+ARG TORCH_INDEX=cpu
+RUN pip install --no-cache-dir "$TORCH_SPEC" --index-url https://download.pytorch.org/whl/$TORCH_INDEX
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 # Kokoro's English G2P downloads this spaCy model on first use; install it at
