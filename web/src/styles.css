@@ -345,22 +345,11 @@ a {
   padding: 0.25em 0.375em;
 }
 
-/* The lower third and the controls share one row above the ticker, so a long
-   headline wraps instead of running under the buttons. */
-.bottom-row {
+.lower-third {
   position: absolute;
   left: calc(12 * var(--px));
-  right: calc(6 * var(--px));
   bottom: var(--above-ticker);
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: calc(6 * var(--px));
-}
-
-.lower-third {
-  flex: 0 1 calc(220 * var(--px));
-  min-width: 0;
+  max-width: calc(220 * var(--px));
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -393,10 +382,40 @@ a {
   padding: 0.25em 0.5em 0.375em;
 }
 
-.controls {
-  flex: none; /* one row: .sources is placed a fixed height above it */
+/* A drawer on the right edge: the MENU tab opens a column of controls, so they
+   never sit over the lower third. Sources open to the left of the tab. */
+.controls-dock {
+  position: absolute;
+  right: 0;
+  bottom: var(--above-ticker);
+  z-index: 3;
   display: flex;
+  align-items: flex-end;
+  gap: calc(4 * var(--px));
+}
+
+.dock-toggle {
+  border-right: none;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   gap: calc(2 * var(--px));
+  padding: calc(3 * var(--px));
+  background: rgb(11 11 20 / 85%);
+  border: max(2px, calc(1 * var(--px))) solid var(--paper);
+  border-right: none;
+  box-shadow: var(--shadow);
+  /* The stage is 9/16 as tall as it is wide; leave room for the ticker and
+     the clock above, and scroll on very short stages. */
+  max-height: calc(100cqw * 9 / 16 - var(--above-ticker) - 3 * var(--type-ui));
+  overflow-y: auto;
+}
+
+.controls-dock:not(.open) .controls {
+  display: none;
 }
 
 .ctl {
@@ -423,9 +442,6 @@ a {
 }
 
 .sources {
-  position: absolute;
-  right: calc(6 * var(--px));
-  bottom: calc(var(--above-ticker) + 52px);
   max-width: calc(128 * var(--px));
   background: rgb(11 11 20 / 92%);
   border: max(2px, calc(1 * var(--px))) solid var(--paper);
@@ -510,7 +526,6 @@ a {
 .captions {
   box-sizing: border-box;
   width: calc(200 * var(--px));
-  max-width: 100%; /* the lower third can be narrower when the controls need the room */
   height: 2.875em; /* two lines + padding */
   overflow: hidden;
   margin: 0 0 calc(3 * var(--px));
@@ -716,9 +731,6 @@ a {
     position: static;
     order: 1;
   }
-  .bottom-row {
-    display: contents;
-  }
   .lower-third {
     position: static;
     order: 2;
@@ -739,9 +751,25 @@ a {
     flex-wrap: wrap;
     font-size: var(--type-read);
   }
+  .controls-dock {
+    display: contents;
+  }
+  .dock-toggle {
+    display: none;
+  }
+  .controls-dock:not(.open) .controls {
+    display: flex;
+  }
   .controls {
     position: static;
     order: 3;
+    flex-direction: row;
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    max-height: none;
+    overflow: visible;
     justify-content: center;
     flex-wrap: wrap;
     gap: 8px;
